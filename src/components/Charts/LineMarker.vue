@@ -1,5 +1,8 @@
 <template>
-  <div :id="id" :class="className" :style="{height:height,width:width}" />
+  <div>
+    <el-button @click="edit" :size="'small'">edit</el-button>
+    <div :id="id" :class="className" :style="{height:height,width:width}" />
+  </div>
 </template>
 
 <script>
@@ -26,6 +29,22 @@ export default {
       default: '200px'
     }
   },
+  watch:{
+    width: {
+      handler(n,o) {
+        console.log('width=='+this.width+ ';;height==' + this.height)
+        this.width = n;
+        if (this.chart){
+          this.$nextTick(()=>{
+        this.chart.resize();
+
+          })
+        }
+      },
+      immediate: true
+    }
+
+  },
   data() {
     return {
       chart: null
@@ -42,6 +61,10 @@ export default {
     this.chart = null
   },
   methods: {
+    edit(){
+      this.$emit("editAction",true);
+      console.log(this.chart, 'editAction')
+    },
     initChart() {
       this.chart = echarts.init(document.getElementById(this.id))
 

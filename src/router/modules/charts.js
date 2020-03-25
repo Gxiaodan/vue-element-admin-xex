@@ -29,6 +29,18 @@ const chartsRouter = {
       component: () => import('@/views/charts/mix-chart'),
       name: 'MixChart',
       meta: { title: 'Mix Chart', noCache: true }
+    },
+    {
+      path: 'grid-layout',
+      component: () => import('@/views/charts/grid-layout'),
+      name: 'VueGridLayout',
+      meta: { title: 'vue_grid_layout', noCache: true }
+    },
+    {
+      path: 'antVg2Plot',
+      component: () => import('@/views/charts/antVg2Plot'),
+      name: 'antVg2Plot',
+      meta: { title: 'antVg2Plot', noCache: true }
     }
   ]
 }
