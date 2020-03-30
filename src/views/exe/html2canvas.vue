@@ -58,7 +58,6 @@ export default {
       const domObj = document.getElementById('nodeBox')
       html2canvas(domObj, {
         onrendered: function(canvas) {
-          debugger
           vm.dataurl2 = canvas.toDataURL()
         }
       })
