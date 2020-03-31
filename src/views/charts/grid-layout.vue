@@ -4,7 +4,7 @@
     <grid-layout
       :layout.sync="layout"
       :col-num="12"
-      :row-height="30"
+      :row-height="50"
       :is-draggable="true"
       :is-resizable="true"
       :is-mirrored="false"
@@ -22,8 +22,11 @@
         :w="item.w"
         :h="item.h"
         :i="item.i"
+        :drag-allow-from="'p'"
         @resized="resized"
       >
+        <p class="title" style="background:#fcc;">kkkkkkkkkkk</p>
+
         <!-- {{item.i}} -->
         <!-- antV -->
         <!-- <chart @editAction="editAction" v-if="item.i=='0'"  :height="sizeOPtion[item.i] ? sizeOPtion[item.i].h : cHeight" :width="sizeOPtion[item.i] ? sizeOPtion[item.i].w : cWidth"/> -->
@@ -135,11 +138,11 @@ export default {
       }
       ],
       layout: [
-        { 'x': 0, 'y': 0, 'w': 2, 'h': 2, 'i': '0', type: 'bar1' },
-        { 'x': 2, 'y': 0, 'w': 2, 'h': 4, 'i': '1', type: 'bar2' },
-        { 'x': 4, 'y': 0, 'w': 2, 'h': 5, 'i': '2', type: 'bar3' },
-        { 'x': 6, 'y': 0, 'w': 2, 'h': 3, 'i': '3', type: 'line2' },
-        { 'x': 8, 'y': 0, 'w': 2, 'h': 3, 'i': '4', type: 'line1' }
+        { 'x': 0, 'y': 0, 'w': 6, 'h': 4, 'i': '0', type: 'bar1' },
+        { 'x': 6, 'y': 0, 'w': 6, 'h': 4, 'i': '1', type: 'bar2' },
+        { 'x': 0, 'y': 4, 'w': 6, 'h': 4, 'i': '2', type: 'bar3' },
+        { 'x': 6, 'y': 4, 'w': 6, 'h': 4, 'i': '3', type: 'line2' },
+        { 'x': 0, 'y': 8, 'w': 6, 'h': 4, 'i': '4', type: 'line1' }
       ],
       sizeOPtion: {}
     }

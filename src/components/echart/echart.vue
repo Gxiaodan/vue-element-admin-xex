@@ -1,5 +1,5 @@
 <template>
-  <v-chart :ref="id" :options="option" :autoresize="true" />
+  <v-chart :ref="id" :options="option" style="width:100%; height:80%" :autoresize="true" />
 </template>
 <script>
 import chartsOption from './index'
