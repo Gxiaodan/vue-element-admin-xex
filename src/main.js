@@ -18,8 +18,11 @@ import './permission' // permission control
 import './utils/error-log' // error log
 
 import * as filters from './filters' // global filters
-import VueGridLayout from "vue-grid-layout";
-
+import VueGridLayout from 'vue-grid-layout'
+import 'vue-easytable/libs/themes-base/index.css'
+import { VTable, VPagination } from 'vue-easytable'
+Vue.component(VTable.name, VTable)
+Vue.component(VPagination.name, VPagination)
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
@@ -29,25 +32,25 @@ import VueGridLayout from "vue-grid-layout";
  * please remove it before going online ! ! !
  */
 if (process.env.NODE_ENV === 'production') {
-    const { mockXHR } = require('../mock')
-    mockXHR()
+  const { mockXHR } = require('../mock')
+  mockXHR()
 }
 Vue.use(VueGridLayout)
 
 Vue.use(Element, {
-    size: Cookies.get('size') || 'medium' // set element-ui default size
+  size: Cookies.get('size') || 'medium' // set element-ui default size
 })
 
 // register global utility filters
 Object.keys(filters).forEach(key => {
-    Vue.filter(key, filters[key])
+  Vue.filter(key, filters[key])
 })
 
 Vue.config.productionTip = false
 
 new Vue({
-    el: '#app',
-    router,
-    store,
-    render: h => h(App)
+  el: '#app',
+  router,
+  store,
+  render: h => h(App)
 })

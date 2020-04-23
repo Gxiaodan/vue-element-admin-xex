@@ -17,6 +17,12 @@ const exeRouter = {
       component: () => import('@/views/exe/html2canvas'),
       name: 'html2canvas',
       meta: { title: 'html2canvas', noCache: true }
+    },
+    {
+      path: 'editTable',
+      component: () => import('@/views/exe/editTable'),
+      name: 'editTable',
+      meta: { title: 'editTable', noCache: true }
     }
   ]
 }
