@@ -23,6 +23,12 @@ const exeRouter = {
       component: () => import('@/views/exe/editTable'),
       name: 'editTable',
       meta: { title: 'editTable', noCache: true }
+    },
+    {
+      path: 'vModel',
+      component: () => import('@/views/exe/vModel/index'),
+      name: 'v-model',
+      meta: { title: 'v-model', noCache: true }
     }
   ]
 }
