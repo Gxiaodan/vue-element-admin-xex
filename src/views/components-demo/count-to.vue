@@ -48,15 +48,24 @@
     <aside>&lt;count-to :start-val=&#x27;{{ _startVal }}&#x27; :end-val=&#x27;{{ _endVal }}&#x27; :duration=&#x27;{{ _duration }}&#x27;
       :decimals=&#x27;{{ _decimals }}&#x27; :separator=&#x27;{{ _separator }}&#x27; :prefix=&#x27;{{ _prefix }}&#x27; :suffix=&#x27;{{ _suffix }}&#x27;
       :autoplay=false&gt;</aside>
+    <VueScroll
+      :value="alertCount || 0"
+      :count="String(alertCount).length <3 ? 3 : String(alertCount).length"
+      :animation-time="animationTime"
+      :number-style="numberStyle"
+      :is-split="true"
+      :number-container-style="numberContainerStyle"
+      :scroll-height="-50"
+    />
   </div>
 </template>
 
 <script>
 import countTo from 'vue-count-to'
-
+import VueScroll from './VueCountTo'
 export default {
   name: 'CountToDemo',
-  components: { countTo },
+  components: { countTo, VueScroll },
   data() {
     return {
       setStartVal: 0,
@@ -65,7 +74,28 @@ export default {
       setDecimals: 0,
       setSeparator: ',',
       setSuffix: ' rmb',
-      setPrefix: '¥ '
+      setPrefix: '¥ ',
+      numberStyle: {
+        color: '#fff650',
+        fontStyle: 'normal',
+        fontSize: '38px',
+        width: '33px',
+        height: '50px', // 不能去掉
+        lineHeight: '50px',
+        textAlign: 'center',
+        // margin: "5px",
+        backgroundImage:
+              'url(' + require('./VueCountTo/img/device_number_bg.png') + ')',
+        backgroundSize: '100% 100%'
+      },
+      numberContainerStyle: {
+        width: '33px',
+        height: '50px',
+        margin: '0 4px'
+      },
+      animationTime: 1,
+      timer: [],
+      alertCount: 0
     }
   },
   computed: {
@@ -110,6 +140,28 @@ export default {
     _prefix() {
       return this.setPrefix
     }
+  },
+  mounted() {
+    const timer1 = setInterval(() => {
+      this.alertCount = Math.floor((Math.random()) * 10000)
+      console.log(this.alertCount, 'alertCount-=====')
+      // let bak = this.alertCount
+      // this.alertCount = parseInt(bak / 100) * 100
+      // this.animationTime = 0
+      // setTimeout(() => {
+      //     this.animationTime = 1
+      //     this.alertCount = bak
+      // }, 0)
+    }, Math.random() * 5000 + 5000)
+
+    this.timer.push(timer1)
+  },
+  beforeDestroy() {
+    this.timer.map((item) => {
+      if (item) {
+        clearInterval(item)
+      }
+    })
   },
   methods: {
     start() {
