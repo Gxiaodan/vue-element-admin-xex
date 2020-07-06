@@ -104,6 +104,10 @@ export default {
       default: ''
     }
   },
+  data() {
+    return {
+    }
+  },
   computed: {
     numList() {
       var zeroStr = ''
@@ -119,6 +123,20 @@ export default {
         color: this.numberStyle.color || 'white'
       }
     }
+  },
+  watch: {
+    // value:{
+    //   handler: function(val, oldVal) {
+    //     let bak = this.value
+    //     this.value = parseInt(bak / 100) * 100
+    //     this.animationTime = 0
+    //     setTimeout(() => {
+    //         this.animationTime = 1
+    //         this.value = bak
+    //     }, 0)
+    //   },
+    //   immediate: true
+    // }
   },
   methods: {
     toThousands(num) {

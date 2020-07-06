@@ -57,15 +57,17 @@
       :number-container-style="numberContainerStyle"
       :scroll-height="-50"
     />
+    <digit-roll ref="digit" />
   </div>
 </template>
 
 <script>
 import countTo from 'vue-count-to'
 import VueScroll from './VueCountTo'
+import DigitRoll from './DigitRoll'
 export default {
   name: 'CountToDemo',
-  components: { countTo, VueScroll },
+  components: { countTo, VueScroll, DigitRoll },
   data() {
     return {
       setStartVal: 0,
@@ -79,23 +81,25 @@ export default {
         color: '#fff650',
         fontStyle: 'normal',
         fontSize: '38px',
-        width: '33px',
+        width: 'auto',
         height: '50px', // 不能去掉
         lineHeight: '50px',
         textAlign: 'center',
         // margin: "5px",
+        // backgroundImage:"none",
         backgroundImage:
               'url(' + require('./VueCountTo/img/device_number_bg.png') + ')',
         backgroundSize: '100% 100%'
       },
       numberContainerStyle: {
-        width: '33px',
+        width: 'auto',
         height: '50px',
         margin: '0 4px'
       },
       animationTime: 1,
       timer: [],
-      alertCount: 0
+      alertCount: 999,
+      oldNum: 0
     }
   },
   computed: {
@@ -142,19 +146,27 @@ export default {
     }
   },
   mounted() {
-    const timer1 = setInterval(() => {
-      this.alertCount = Math.floor((Math.random()) * 10000)
-      console.log(this.alertCount, 'alertCount-=====')
-      // let bak = this.alertCount
-      // this.alertCount = parseInt(bak / 100) * 100
-      // this.animationTime = 0
-      // setTimeout(() => {
-      //     this.animationTime = 1
-      //     this.alertCount = bak
-      // }, 0)
-    }, Math.random() * 5000 + 5000)
+    this.moveHandler()
+    // let bak = this.alertCount
+    // this.alertCount = parseInt(bak / 100) * 100
+    // this.animationTime = 0
+    setTimeout(() => {
+      this.alertCount = 999
+    }, 0)
 
-    this.timer.push(timer1)
+    // const timer1 = setTimeout(() => {
+    //   this.alertCount = Math.floor((Math.random()) * 10000)
+    //   console.log(this.alertCount, 'alertCount-=====')
+    //   let bak = this.alertCount
+    //   this.alertCount = parseInt(bak / 100) * 100
+    //   this.animationTime = 0
+    //   setTimeout(() => {
+    //       this.animationTime = 1
+    //       this.alertCount = bak
+    //   }, 0)
+    // }, Math.random() * 5000 + 5000)
+
+    // this.timer.push(timer1)
   },
   beforeDestroy() {
     this.timer.map((item) => {
@@ -164,6 +176,12 @@ export default {
     })
   },
   methods: {
+    moveHandler() {
+      // var updateData = this.totalNum - this.oldNum
+      // this.$refs.digit.updata(updateData)
+      this.$refs.digit.updata(999)
+      // this.oldNum = this.totalNum
+    },
     start() {
       this.$refs.example.start()
     },
