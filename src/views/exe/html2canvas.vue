@@ -2,7 +2,6 @@
   <div>
     ggggggg
     <el-button @click="setImage">setImage</el-button>
-    <el-button @click="setImage2">setImage2</el-button>
     <div id="nodeBox" slot="content" class="content-body">
       <div class="body-box">
         eeeeeeeeeeeeeeeeee
@@ -12,12 +11,31 @@
     </div>
     <img id="downImg" :src="dataurl" alt="">
     <img :src="dataurl2" alt="">
+    <el-button @click="starTagCanvas">starTagCanvas</el-button>
+    <div id="myCanvasContainer">
+      <canvas id="myCanvas" width="300" height="300" />
+      <div id="tags" style="display:none">
+        <a v-for="(value,index) in textInfo" :key="index" href="#" :style="{color:value.color}">{{ value.textKey }}</a>
+      </div>
+    </div>
+    {{ colors }}
+    <el-button @click="roatedFn('right')">右上</el-button>
+    <el-button @click="roatedFn('left')">左上</el-button>
+    <!-- <svg :width='width' :height='height' @mousemove='listener($event)'> -->
+    <svg :width="width" :height="height">
+      <!-- <svg :width='width' :height='height'  @mouseenter="mouseEnter($event)" @mouseleave="mouseLeave($event)"> -->
+      <a v-for="(tag,index) in tags" :key="index" :href="tag.href">
+        <el-button>11</el-button>
+        <text :x="tag.x" :y="tag.y" :font-size="tag.f" :fill="colors[index]" :fill-opacity="(1-(tag.z)/600)">{{ tag.text }}</text>
+      </a>
+    </svg>
   </div>
 </template>
 
 <script>
 import html2canvas from 'html2canvas'
 import { Line } from '@antv/g2plot'
+import '@/utils/tagcanvas'
 export default {
   name: 'Html2canvas',
   components: { },
@@ -35,7 +53,67 @@ export default {
         { year: '1997', value: 7 },
         { year: '1998', value: 9 },
         { year: '1999', value: 13 }
-      ]
+      ],
+      width: 700,
+      height: 700,
+      tagsNum: 20,
+      RADIUS: 200,
+      speedX: Math.PI / 360,
+      speedY: Math.PI / 360,
+      tags: [],
+      colors: [],
+      timer: null,
+      textInfo:
+                [{
+                  'textKey': '金融在线',
+                  color: '#f00'
+                },
+                {
+                  'textKey': '保险欺诈',
+                  color: '#f00'
+                },
+                {
+                  'textKey': '现金价值',
+                  color: '#f00'
+                },
+                {
+                  'textKey': '互联网产品',
+                  color: '#f00'
+                },
+                {
+                  'textKey': '线上资料库',
+                  color: '#f00'
+                },
+                {
+                  'textKey': '保单贷款',
+                  color: '#f00'
+                },
+                {
+                  'textKey': '风险意识',
+                  color: '#f00'
+                },
+                {
+                  'textKey': '保额确定',
+                  color: '#ff0'
+                },
+                {
+                  'textKey': 'E行销',
+                  color: '#ff0'
+                },
+                {
+                  'textKey': '分红险',
+                  color: '#f0f'
+                }
+                ]
+    }
+  },
+
+  computed: {
+    CX() { // 球心x坐标
+      return this.width / 2
+    },
+    CY() { // 球心y坐标
+      return this.height / 2
     }
   },
   mounted() {
@@ -49,17 +127,96 @@ export default {
       yField: 'value'
     })
     linePlot.render()
+    console.log(`this.speedX = ${this.speedX}; this.speedY = ${this.speedY}`)
+    this.timer = setInterval(() => {
+      this.rotateX(this.speedX)
+      this.rotateY(this.speedY)
+    }, 17)
   },
   created() {
+    const tags = []
+    for (let i = 0; i < this.tagsNum; i++) {
+      const tag = {}
+      const k = -1 + (2 * (i + 1) - 1) / this.tagsNum
+      const a = Math.acos(k)
+      const b = a * Math.sqrt(this.tagsNum * Math.PI)
+      tag.text = i + 'tag'
+      tag.x = this.CX + this.RADIUS * Math.sin(a) * Math.cos(b)
+      tag.y = this.CY + this.RADIUS * Math.sin(a) * Math.sin(b)
+      tag.z = this.RADIUS * Math.cos(a)
+      tag.f = Math.round(Math.random() * 40)
+      tag.href = 'https://imgss.github.io'
+      tags.push(tag)
+      this.colors.push(`rgba(${Math.round(Math.random() * 255)},${Math.round(Math.random() * 255)},${Math.round(Math.random() * 255)},1)`)
+      debugger
+    }
+    this.tags = tags
   },
   methods: {
-    setImage2() {
+    roatedFn(directive) {
+      if (directive == 'right') {
+        this.speedX = -Math.abs(this.speedX)
+        this.speedY = Math.abs(this.speedY)
+      } else if (directive == 'left') {
+        this.speedX = -Math.abs(this.speedX)
+        this.speedY = -Math.abs(this.speedY)
+      }
+      console.log(`this.speedX = ${this.speedX}; this.speedY = ${this.speedY}`)
+    },
+    mouseEnter() {
+      clearInterval(this.timer)
+    },
+    mouseLeave() {
+      this.timer = setInterval(() => {
+        console.log(`this.speedX = ${this.speedX}; this.speedY = ${this.speedY}`)
+        this.rotateX(this.speedX)
+        this.rotateY(this.speedY)
+      }, 17)
+    },
+    rotateX(speedX) {
+      var cos = Math.cos(speedX)
+      var sin = Math.sin(speedX)
+      for (const tag of this.tags) {
+        var y1 = (tag.y - this.CY) * cos - tag.z * sin + this.CY
+        var z1 = tag.z * cos + (tag.y - this.CY) * sin
+        tag.y = y1
+        tag.z = z1
+      }
+    },
+    rotateY(speedY) {
+      var cos = Math.cos(speedY)
+      var sin = Math.sin(speedY)
+      for (const tag of this.tags) {
+        var x1 = (tag.x - this.CX) * cos - tag.z * sin + this.CX
+        var z1 = tag.z * cos + (tag.x - this.CX) * sin
+        tag.x = x1
+        tag.z = z1
+      }
+    },
+    listener(event) { // 响应鼠标移动
+      var x = event.clientX - this.CX
+      var y = event.clientY - this.CY
+      // console.log(`x=${x};y=${y}`)
+      this.speedX = x * 0.0001 > 0 ? Math.min(this.RADIUS * 0.00002, x * 0.0001) : Math.max(-this.RADIUS * 0.00002, x * 0.0001)
+      this.speedY = y * 0.0001 > 0 ? Math.min(this.RADIUS * 0.00002, y * 0.0001) : Math.max(-this.RADIUS * 0.00002, y * 0.0001)
+    },
+
+    starTagCanvas() {
       const vm = this
-      const domObj = document.getElementById('nodeBox')
-      html2canvas(domObj, {
-        onrendered: function(canvas) {
-          vm.dataurl2 = canvas.toDataURL()
-        }
+      TagCanvas.Start('myCanvas', 'tags', {
+        interval: 20,
+        textColour: '#f00',
+        outlineColour: '#fff',
+        shape: 'sphere',
+        textHeight: 14,
+        reverse: true,
+        noMouse: true,
+        depth: 0.5,
+        dragControl: false,
+        //                    decel:0.95,
+        maxSpeed: 0.05,
+        minSpeed: 0.05,
+        initial: [-0.08, 0]
       })
     },
     setImage() {
