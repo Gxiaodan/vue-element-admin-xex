@@ -21,6 +21,26 @@ import * as filters from './filters' // global filters
 import VueGridLayout from 'vue-grid-layout'
 import 'vue-easytable/libs/themes-base/index.css'
 import { VTable, VPagination } from 'vue-easytable'
+
+// import { Topology, Options, registerNode } from '@topology/core';
+// import { register as registerFlow } from '@topology/flow-diagram';
+// import { register as registerActivity } from '@topology/activity-diagram';
+// import { register as registerClass } from '@topology/class-diagram';
+// import { register as registerSequence } from '@topology/sequence-diagram';
+// import { register as registerChart } from '@topology/chart-diagram';
+
+// // 注册图形库
+// function canvasRegister() {
+//   registerFlow();
+//   registerActivity();
+//   registerClass();
+//   registerSequence();
+//   registerChart();
+//   // ... 其他图形库
+// }
+
+// canvasRegister();
+
 Vue.component(VTable.name, VTable)
 Vue.component(VPagination.name, VPagination)
 /**

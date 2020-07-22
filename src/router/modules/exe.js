@@ -19,6 +19,12 @@ const exeRouter = {
       meta: { title: 'html2canvas', noCache: true }
     },
     {
+      path: 'topology',
+      component: () => import('@/views/exe/topology'),
+      name: 'topology',
+      meta: { title: 'topology', noCache: true }
+    },
+    {
       path: 'editTable',
       component: () => import('@/views/exe/editTable'),
       name: 'editTable',

@@ -15,7 +15,13 @@
     <div id="myCanvasContainer">
       <canvas id="myCanvas" width="300" height="300" />
       <div id="tags" style="display:none">
-        <a v-for="(value,index) in textInfo" :key="index" href="#" :style="{color:value.color}">{{ value.textKey }}</a>
+        <a
+          v-for="(value,index) in textInfo"
+          :key="index"
+          href="#"
+          :style="{color:value.color,fontSize:`${value.fontSize}px`,
+                   fontFamily: '宋体'}"
+        >{{ value.textKey }}</a>
       </div>
     </div>
     {{ colors }}
@@ -26,7 +32,7 @@
       <!-- <svg :width='width' :height='height'  @mouseenter="mouseEnter($event)" @mouseleave="mouseLeave($event)"> -->
       <a v-for="(tag,index) in tags" :key="index" :href="tag.href">
         <el-button>11</el-button>
-        <text :x="tag.x" :y="tag.y" :font-size="tag.f" :fill="colors[index]" :fill-opacity="(1-(tag.z)/600)">{{ tag.text }}</text>
+        <text :x="tag.x" :y="tag.y" :font-size="tag.f" font-family="黑体" font-weight="bold" :fill="colors[index]" :fill-opacity="(1-(tag.z)/600)">{{ tag.text }}</text>
       </a>
     </svg>
   </div>
@@ -66,45 +72,56 @@ export default {
       textInfo:
                 [{
                   'textKey': '金融在线',
-                  color: '#f00'
+                  color: '#f00',
+                  fontSize: 40
                 },
                 {
                   'textKey': '保险欺诈',
-                  color: '#f00'
+                  color: '#f00',
+                  fontSize: 12
                 },
                 {
                   'textKey': '现金价值',
-                  color: '#f00'
+                  color: '#f00',
+                  fontSize: 12
                 },
                 {
                   'textKey': '互联网产品',
-                  color: '#f00'
+                  color: '#f00',
+                  fontSize: 12
                 },
                 {
                   'textKey': '线上资料库',
-                  color: '#f00'
+                  color: '#f00',
+                  fontSize: 12
                 },
                 {
                   'textKey': '保单贷款',
-                  color: '#f00'
+                  color: '#f00',
+                  fontSize: 12
                 },
                 {
                   'textKey': '风险意识',
-                  color: '#f00'
+                  color: '#f00',
+                  fontSize: 12
                 },
                 {
                   'textKey': '保额确定',
-                  color: '#ff0'
+                  color: '#ff0',
+                  fontSize: 12
                 },
                 {
                   'textKey': 'E行销',
-                  color: '#ff0'
+                  color: '#ff0',
+                  fontSize: 12
                 },
                 {
                   'textKey': '分红险',
-                  color: '#f0f'
+                  color: '#f0f',
+                  fontSize: 12
                 }
-                ]
+                ],
+      rotateSpeed: 12
     }
   },
 
@@ -131,7 +148,8 @@ export default {
     this.timer = setInterval(() => {
       this.rotateX(this.speedX)
       this.rotateY(this.speedY)
-    }, 17)
+      console.log(this.rotateSpeed)
+    }, this.rotateSpeed)
   },
   created() {
     const tags = []
@@ -154,13 +172,22 @@ export default {
   },
   methods: {
     roatedFn(directive) {
+      debugger
       if (directive == 'right') {
         this.speedX = -Math.abs(this.speedX)
         this.speedY = Math.abs(this.speedY)
+        this.rotateSpeed = 100
       } else if (directive == 'left') {
         this.speedX = -Math.abs(this.speedX)
         this.speedY = -Math.abs(this.speedY)
+        this.rotateSpeed = 10
       }
+      clearInterval(this.timer)
+      this.timer = setInterval(() => {
+        this.rotateX(this.speedX)
+        this.rotateY(this.speedY)
+        console.log(this.rotateSpeed)
+      }, this.rotateSpeed)
       console.log(`this.speedX = ${this.speedX}; this.speedY = ${this.speedY}`)
     },
     mouseEnter() {
@@ -205,13 +232,14 @@ export default {
       const vm = this
       TagCanvas.Start('myCanvas', 'tags', {
         interval: 20,
-        textColour: '#f00',
+        textColour: null,
         outlineColour: '#fff',
-        shape: 'sphere',
-        textHeight: 14,
+        shape: 'vring(0.5)', // hring vring(0.5) hcylinder  vcylinder sphere
+        textFont: null,
         reverse: true,
         noMouse: true,
         depth: 0.5,
+        weight: true,
         dragControl: false,
         //                    decel:0.95,
         maxSpeed: 0.05,
