@@ -35,6 +35,12 @@ const exeRouter = {
       component: () => import('@/views/exe/vModel/index'),
       name: 'v-model',
       meta: { title: 'v-model', noCache: true }
+    },
+    {
+      path: 'svg',
+      component: () => import('@/views/exe/svg'),
+      name: 'svg',
+      meta: { title: 'svg', noCache: true }
     }
   ]
 }
