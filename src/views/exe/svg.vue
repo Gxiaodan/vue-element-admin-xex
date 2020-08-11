@@ -1,6 +1,7 @@
 <template>
   <div>
     svg练习
+    <el-button ref="aaa" @click="testFun"><el-rate v-model="value1" />aaa</el-button>
     <svg
       version="1.1"
       baseProfile="full"
@@ -124,7 +125,8 @@ export default {
   components: { },
   data() {
     return {
-      svg1
+      svg1,
+      value1: null
     }
   },
   mounted() {
@@ -133,6 +135,15 @@ export default {
   created() {
   },
   methods: {
+    testFun() {
+      debugger
+      const ele = this.$refs.aaa.$el
+      // let width = ele.style.width;
+      // let height = ele.style.height;
+      ele.style.width = '200px'
+      ele.style.height = '80px'
+      console.log(width + '=========' + height)
+    }
 
   }
 }

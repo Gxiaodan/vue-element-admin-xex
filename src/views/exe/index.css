@@ -1,0 +1,5 @@
+.el-button:hover, .el-button:focus {
+    color: #1890ff;
+    border-color: #f00;
+    background-color: #e8f4ff;
+}

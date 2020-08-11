@@ -1,5 +1,6 @@
 <template>
   <div>
+    <el-button>aaa</el-button>
     http://doc.huangsw.com/vue-easytable/app.html#/install
     editTable
     <v-table
@@ -48,7 +49,7 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style scoped lang="scss">
+  @import "./index.css";
 </style>
 

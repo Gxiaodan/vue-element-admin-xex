@@ -1,5 +1,6 @@
 <template>
   <div>
+    <el-button>aaa</el-button>
     ggggggg
     <el-button @click="setImage">setImage</el-button>
     <div id="nodeBox" slot="content" class="content-body">
@@ -293,6 +294,7 @@ export default {
 </script>
 
 <style scoped>
+  @import "./index.css";
 #nodeBox{
   width: 300px;
   /* height: 300px; */
