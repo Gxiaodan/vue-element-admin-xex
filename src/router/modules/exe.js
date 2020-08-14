@@ -41,6 +41,12 @@ const exeRouter = {
       component: () => import('@/views/exe/svg'),
       name: 'svg',
       meta: { title: 'svg', noCache: true }
+    },
+    {
+      path: 'clipboard',
+      component: () => import('@/views/exe/clipboard'),
+      name: 'clipboard',
+      meta: { title: 'clipboard', noCache: true }
     }
   ]
 }

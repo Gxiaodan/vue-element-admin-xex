@@ -21,6 +21,7 @@ import * as filters from './filters' // global filters
 import VueGridLayout from 'vue-grid-layout'
 import 'vue-easytable/libs/themes-base/index.css'
 import { VTable, VPagination } from 'vue-easytable'
+import VueClipboard from 'vue-clipboard2'
 
 // import { Topology, Options, registerNode } from '@topology/core';
 // import { register as registerFlow } from '@topology/flow-diagram';
@@ -40,7 +41,7 @@ import { VTable, VPagination } from 'vue-easytable'
 // }
 
 // canvasRegister();
-
+Vue.use(VueClipboard)
 Vue.component(VTable.name, VTable)
 Vue.component(VPagination.name, VPagination)
 /**
