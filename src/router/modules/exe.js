@@ -47,6 +47,12 @@ const exeRouter = {
       component: () => import('@/views/exe/clipboard'),
       name: 'clipboard',
       meta: { title: 'clipboard', noCache: true }
+    },
+    {
+      path: 'Scssexe',
+      component: () => import('@/views/exe/scssexe'),
+      name: 'Scssexe',
+      meta: { title: 'Scssexe', noCache: true }
     }
   ]
 }

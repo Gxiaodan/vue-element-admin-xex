@@ -48,15 +48,6 @@ export default {
 }
 </script>
 
-<style scoped>
-  @import "./index.css";
-#nodeBox{
-  width: 300px;
-  /* height: 300px; */
-}
-  #downImg{
-    width: 200px;
-    /* height: 200px; */
-  }
+<style scoped lang="scss">
 </style>
 

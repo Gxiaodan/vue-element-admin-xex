@@ -45,6 +45,7 @@
   "dependencies": {
     "@antv/g2plot": "^1.0.2",
     "@topology/activity-diagram": "^0.2.24",
+    "@topology/chart-diagram": "^0.2.24",
     "@topology/class-diagram": "^0.2.24",
     "@topology/core": "^0.2.24",
     "@topology/flow-diagram": "^0.2.24",
