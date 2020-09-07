@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="css_var" class="main">
 
     <div class="con">
       jjjjjjjjjjjjjjjjjjjjjjjj你看看拉萨
@@ -27,6 +27,11 @@
         <span class="inner">inner</span></p>
       <p class="seriousError intrusion">seriousError <span class="inner">inner</span></p>
     </div>
+    <hr>
+    <p class="css-var">css变量</p>
+    <div class="text-primary">red</div>
+    <main id="promary" class="text-primary">blue</main>
+    <div id="secondary" style="--primary-color: purple">purple</div>
   </div>
 </template>
 
@@ -38,23 +43,45 @@ export default {
     return {
       list: [
         'puma', 'sea-slug', 'egret', 'salamander'
-      ]
+      ],
+      '透明度': 0,
+      color: '#ff0'
     }
   },
 
   computed: {
   },
   mounted() {
+    setInterval(() => {
+      this['透明度'] >= 1 && (this['透明度'] = 0)
+      this['透明度'] += 0.2
+      let opacity = Number(this.$refs.css_var.style.getPropertyValue('--opacity')) + 0.1
+      if (opacity > 1) { opacity = 1; return }
+      this.$refs.css_var.style.setProperty('--opacity', opacity)
+    }, 300)
   },
   created() {
   },
   methods: {
-
+    flowFn(a, b) {
+      return (a + b)
+    }
   }
 }
 </script>
 
-<style scoped lang="scss">
+<!-- <style  lang="scss" vars="{ color }"> -->
+<style  lang="scss">
+.main{
+  --opacity: 0.1;
+.css-var{
+  --color: #0f0;
+  // color: rgb(255,0,0);
+  font-size: 30px;
+  font-weight: bold;
+  color: var(--color);
+  opacity: var(--opacity);
+}
 .con{
   font: {
     size:20px;
@@ -115,6 +142,8 @@ export default {
     @extend .error;
     border: 3px solid #0f0;
   }
+
+}
 
 </style>
 
