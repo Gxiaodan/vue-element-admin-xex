@@ -53,6 +53,12 @@ const exeRouter = {
       component: () => import('@/views/exe/scssexe'),
       name: 'Scssexe',
       meta: { title: 'Scssexe', noCache: true }
+    },
+    {
+      path: 'dragResize',
+      component: () => import('@/views/exe/vue-draggable-resizable'),
+      name: 'dragResize',
+      meta: { title: 'dragResize', noCache: true }
     }
   ]
 }
