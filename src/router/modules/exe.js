@@ -59,6 +59,12 @@ const exeRouter = {
       component: () => import('@/views/exe/vue-draggable-resizable'),
       name: 'dragResize',
       meta: { title: 'dragResize', noCache: true }
+    },
+    {
+      path: 'ColorPicker',
+      component: () => import('@/views/exe/color-picker/index'),
+      name: 'ColorPicker',
+      meta: { title: 'ColorPicker', noCache: true }
     }
   ]
 }
