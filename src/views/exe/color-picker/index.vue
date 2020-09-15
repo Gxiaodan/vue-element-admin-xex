@@ -1,6 +1,7 @@
 <template>
   <div class="hu-page">
-    <div class="bg" :style="{ background: color }">
+    <!-- <div class="bg" :style="{ background: color }"> -->
+    <div class="bg">
       <div class="title">
         vue-colorpicker
       </div>

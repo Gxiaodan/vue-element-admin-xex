@@ -8,9 +8,13 @@
       <Saturation
         ref="saturation"
         :color="rgbString"
+        :rgba="rgba"
         :hsv="hsv"
         :size="hueWidth"
+        :color-obj="{type, angle, colorList}"
+        @updateColorList="updateColorList"
         @selectSaturation="selectSaturation"
+        @selectSlide="selectColor"
       />
       <Hue
         ref="hue"
@@ -56,9 +60,9 @@
       @inputColor="inputRgba"
     />
     <Colors
-      :color="rgbaString"
-      :colors-default="colorsDefault"
-      :colors-history-key="colorsHistoryKey"
+      :color-list="colorList"
+      :angle="angle"
+      :color-type="type"
       @selectColor="selectColor"
     />
   </div>
@@ -104,17 +108,6 @@ export default {
     suckerArea: {
       type: Array,
       default: () => []
-    },
-    colorsDefault: {
-      type: Array,
-      default: () => [
-        '#000000', '#FFFFFF', '#FF1900', '#F47365', '#FFB243', '#FFE623', '#6EFF2A', '#1BC7B1',
-        '#00BEFF', '#2E81FF', '#5D61FF', '#FF89CF', '#FC3CAD', '#BF3DCE', '#8E00A7', 'rgba(0,0,0,0)'
-      ]
-    },
-    colorsHistoryKey: {
-      type: String,
-      default: 'vue-colorpicker-history'
     }
   },
   data() {
@@ -130,7 +123,10 @@ export default {
       a: 1,
       h: 0,
       s: 0,
-      v: 0
+      v: 0,
+      colorList: [],
+      angle: 180,
+      type: 'single'
     }
   },
   computed: {
@@ -180,11 +176,27 @@ export default {
       this.$emit('changeColor', {
         rgba: this.rgba,
         hsv: this.hsv,
-        hex: this.modelHex
+        hex: this.modelHex,
+        colorList: [],
+        angle: 180,
+        type: 'single'
       })
     })
   },
   methods: {
+    updateColorList(obj) {
+      this.colorList = obj.colorList
+      this.angle = obj.angle
+      this.type = obj.type
+      this.$emit('changeColor', {
+        rgba: this.rgba,
+        hsv: this.hsv,
+        hex: this.modelHex,
+        colorList: this.colorList,
+        angle: this.angle,
+        type: this.type
+      })
+    },
     selectSaturation(color) {
       const { r, g, b, h, s, v } = this.setColorValue(color)
       Object.assign(this, { r, g, b, h, s, v })
@@ -243,7 +255,38 @@ export default {
       })
     },
     selectColor(color) {
-      const { r, g, b, a, h, s, v } = this.setColorValue(color)
+      let curColor = ''
+      if (color.includes('linear-gradient')) {
+        this.$nextTick(() => {
+          this.angle = Number(color.match(/\d{0,}deg/)[0].match(/\d{0,}/)[0])
+          this.type = 'liner'
+        })
+        const perList = color.match(/\d{0,}%/ig).map(item => {
+          return Number(item.match(/\d{1,}/)[0])
+        })
+        const colors = []
+        color.match(/rgba.*/)[0].trim().split('%').forEach(item => {
+          if (item.includes('rgba')) {
+            colors.push(item.match(/rgba.*\)/ig)[0])
+          }
+        })
+        const colorList = perList.map((item, index) => {
+          return {
+            per: item / 100,
+            color: colors[index]
+          }
+        })
+        this.updateColorList({
+          colorList: colorList,
+          angle: this.angle,
+          type: this.type
+        })
+        curColor = colors[0]
+      } else {
+        this.type = 'single'
+        curColor = color
+      }
+      const { r, g, b, a, h, s, v } = this.setColorValue(curColor)
       Object.assign(this, { r, g, b, a, h, s, v })
       this.setText()
       this.$nextTick(() => {
