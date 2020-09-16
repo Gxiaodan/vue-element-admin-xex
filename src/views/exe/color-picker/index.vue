@@ -57,6 +57,7 @@ export default {
   },
   methods: {
     changeColor(color) {
+      console.log(color, 'color==========')
       const { r, g, b, a } = color.rgba
       this.color = `rgba(${r}, ${g}, ${b}, ${a})`
     },

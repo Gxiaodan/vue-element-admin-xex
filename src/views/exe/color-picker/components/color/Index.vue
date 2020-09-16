@@ -1,70 +1,77 @@
 <template>
-  <div
-    class="hu-color-picker"
-    :class="{ light: isLightTheme }"
-    :style="{ width: totalWidth + 'px' }"
-  >
-    <div class="color-set">
-      <Saturation
-        ref="saturation"
-        :color="rgbString"
-        :rgba="rgba"
-        :hsv="hsv"
-        :size="hueWidth"
-        :color-obj="{type, angle, colorList}"
-        @updateColorList="updateColorList"
-        @selectSaturation="selectSaturation"
-        @selectSlide="selectColor"
+  <div class="dx-color-picker-container">
+    <div ref="dxColorTrigger" class="dx-color-picker-trigger" @click="showPicker">
+      <span class="color-picker-color" :style="{background: triggerColor}" />
+    </div>
+    <div
+      v-show="showColorPicker"
+      ref="dxColorPicker"
+      class="dx-color-picker"
+      :class="{ light: isLightTheme}"
+      :style="{ width: totalWidth + 'px', left: colorPickerLeft + 'px', top: colorPickerTop + 'px'}"
+    >
+      <div class="color-set">
+        <Saturation
+          ref="saturation"
+          :color="rgbString"
+          :rgba="rgba"
+          :hsv="hsv"
+          :size="hueWidth"
+          :color-obj="{type, angle, colorList}"
+          @updateColorList="updateColorList"
+          @selectSaturation="selectSaturation"
+          @selectSlide="selectColor"
+        />
+        <Hue
+          ref="hue"
+          :hsv="hsv"
+          :width="hueWidth"
+          :height="hueHeight"
+          @selectHue="selectHue"
+        />
+        <Alpha
+          ref="alpha"
+          :color="rgbString"
+          :rgba="rgba"
+          :width="hueWidth"
+          :height="hueHeight"
+          @selectAlpha="selectAlpha"
+        />
+      </div>
+      <!-- <div
+              :style="{ height: previewHeight + 'px' }"
+              class="color-show"
+          >
+              <Preview
+                  :color="rgbaString"
+                  :width="previewWidth"
+                  :height="previewHeight"
+              />
+              <Sucker
+                  v-if="!suckerHide"
+                  :sucker-canvas="suckerCanvas"
+                  :sucker-area="suckerArea"
+                  @openSucker="openSucker"
+                  @selectSucker="selectSucker"
+              />
+          </div> -->
+      <Box
+        name="HEX"
+        :color="modelHex"
+        @inputColor="inputHex"
       />
-      <Hue
-        ref="hue"
-        :hsv="hsv"
-        :width="hueWidth"
-        :height="hueHeight"
-        @selectHue="selectHue"
+      <Box
+        name="RGBA"
+        :color="modelRgba"
+        @inputColor="inputRgba"
       />
-      <Alpha
-        ref="alpha"
-        :color="rgbString"
-        :rgba="rgba"
-        :width="hueWidth"
-        :height="hueHeight"
-        @selectAlpha="selectAlpha"
+      <Colors
+        :color-list="colorList"
+        :angle="angle"
+        :color-type="type"
+        @selectColor="selectColor"
       />
     </div>
-    <!-- <div
-            :style="{ height: previewHeight + 'px' }"
-            class="color-show"
-        >
-            <Preview
-                :color="rgbaString"
-                :width="previewWidth"
-                :height="previewHeight"
-            />
-            <Sucker
-                v-if="!suckerHide"
-                :sucker-canvas="suckerCanvas"
-                :sucker-area="suckerArea"
-                @openSucker="openSucker"
-                @selectSucker="selectSucker"
-            />
-        </div> -->
-    <Box
-      name="HEX"
-      :color="modelHex"
-      @inputColor="inputHex"
-    />
-    <Box
-      name="RGBA"
-      :color="modelRgba"
-      @inputColor="inputRgba"
-    />
-    <Colors
-      :color-list="colorList"
-      :angle="angle"
-      :color-type="type"
-      @selectColor="selectColor"
-    />
   </div>
 </template>
 
@@ -126,7 +133,11 @@ export default {
       v: 0,
       colorList: [],
       angle: 180,
-      type: 'single'
+      type: 'single',
+      triggerColor: '',
+      showColorPicker: false,
+      colorPickerLeft: 0,
+      colorPickerTop: 0
     }
   },
   computed: {
@@ -173,31 +184,70 @@ export default {
 
     // 避免初始化时，也会触发changeColor事件
     this.$watch('rgba', () => {
-      this.$emit('changeColor', {
-        rgba: this.rgba,
-        hsv: this.hsv,
-        hex: this.modelHex,
-        colorList: [],
-        angle: 180,
-        type: 'single'
-      })
+      this.$emit('changeColor', this.getResObj())
     })
   },
   methods: {
+    showPicker(e) {
+      const { top, left } = this.$refs.dxColorTrigger.getBoundingClientRect()
+      this.colorPickerLeft = e.clientX - left
+      this.colorPickerTop = e.clientY - top
+      this.showColorPicker = !this.showColorPicker
+    },
+    getResObj() {
+      let rgba = ''
+      let hex = ''
+      let list = []
+      if (this.type == 'single') {
+        rgba = this.rgbaString
+        hex = this.modelHex
+        list = [
+          {
+            per: 0,
+            color: {
+              rgba: this.rgbaString,
+              hex: this.modelHex
+            }
+          }
+        ]
+      } else {
+        this.colorList.forEach((item, index) => {
+          rgba += item.color
+          hex += this.rgb2hex(item.color, true)
+          rgba += ' '
+          hex += ' '
+          rgba += (Number.parseInt(item.per * 100) + '%')
+          if (index < this.colorList.length - 1) { rgba += ',' }
+          hex += (Number.parseInt(item.per * 100) + '%')
+          if (index < this.colorList.length - 1) { hex += ',' }
+        })
+        rgba = `linear-gradient(${this.angle}deg, ${rgba})`
+        hex = `linear-gradient(${this.angle}deg, ${hex})`
+        list = this.colorList.map(item => {
+          return {
+            per: 0,
+            color: {
+              rgba: item.color,
+              hex: this.rgb2hex(item.color, true)
+            }
+          }
+        })
+      }
+      this.triggerColor = rgba
+      return {
+        rgba: rgba,
+        hex: hex,
+        colorList: list
+      }
+    },
     updateColorList(obj) {
       this.colorList = obj.colorList
       this.angle = obj.angle
       this.type = obj.type
-      this.$emit('changeColor', {
-        rgba: this.rgba,
-        hsv: this.hsv,
-        hex: this.modelHex,
-        colorList: this.colorList,
-        angle: this.angle,
-        type: this.type
-      })
+      this.$emit('changeColor', this.getResObj())
     },
     selectSaturation(color) {
+      this.selectAlpha(color.a)
       const { r, g, b, h, s, v } = this.setColorValue(color)
       Object.assign(this, { r, g, b, h, s, v })
       this.setText()
@@ -300,12 +350,42 @@ export default {
 </script>
 
 <style lang="scss">
-.hu-color-picker {
+.dx-color-picker-container{
+  position: relative;
+}
+.dx-color-picker-trigger{
+   display: inline-block;
+    box-sizing: border-box;
+    height: 40px;
+    width: 40px;
+    padding: 4px;
+    border: 1px solid #e6e6e6;
+    border-radius: 4px;
+    font-size: 0;
+    position: relative;
+    cursor: pointer;
+    .color-picker-color{
+      position: relative;
+      display: block;
+      box-sizing: border-box;
+      border: 1px solid #999;
+      border-radius: 2px;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+    }
+    .color-picker-icon{
+      font-size: 12px;
+    }
+}
+.dx-color-picker {
     padding: 10px;
     background: #1d2024;
     border-radius: 4px;
     box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.16);
     z-index: 1;
+    transition: all 0.5s ease;
+    position: absolute;
     &.light {
         background: #f7f8f9;
         .color-show {

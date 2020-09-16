@@ -39,7 +39,11 @@ export default {
       ctx.fillStyle = gradient
       ctx.fillRect(0, 0, width, height)
     },
-    rgb2hex({ r, g, b }, toUpper) {
+    rgb2hex(rgba, toUpper) {
+      if (typeof rgba === 'string') {
+        rgba = this.rgb2rgba(rgba)
+      }
+      const { r, g, b } = rgba
       const change = val => ('0' + Number(val).toString(16)).slice(-2)
       const color = `#${change(r)}${change(g)}${change(b)}`
       return toUpper ? color.toUpperCase() : color

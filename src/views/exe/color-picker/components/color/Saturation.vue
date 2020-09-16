@@ -304,7 +304,7 @@ export default {
         const imgData = ctx.getImageData(Math.min(x, this.size - 1), Math.min(y, this.size - 1), 1, 1)
         const [r, g, b] = imgData.data
         this.curColor = `rgba(${this.rgba.r}, ${this.rgba.g}, ${this.rgba.b}, ${this.rgba.a})`
-        this.$emit('selectSaturation', { r, g, b })
+        this.$emit('selectSaturation', { r, g, b, a: this.rgba.a })
         this.sliderBarBgColor = this.sliderBarBg()
       }
 
