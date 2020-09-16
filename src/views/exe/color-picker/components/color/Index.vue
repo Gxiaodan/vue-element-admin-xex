@@ -134,7 +134,7 @@ export default {
       colorList: [],
       angle: 180,
       type: 'single',
-      triggerColor: '',
+      triggerColor: this.color,
       showColorPicker: false,
       colorPickerLeft: 0,
       colorPickerTop: 0
@@ -179,19 +179,21 @@ export default {
     }
   },
   created() {
-    Object.assign(this, this.setColorValue(this.color))
-    this.setText()
-
+    // Object.assign(this, this.setColorValue(this.color))
+    // this.setText()
+    this.selectColor(this.color)
     // 避免初始化时，也会触发changeColor事件
-    this.$watch('rgba', () => {
-      this.$emit('changeColor', this.getResObj())
-    })
+    // this.$watch('rgba', () => {
+    //   this.$emit('changeColor', this.getResObj())
+    // })
   },
   methods: {
     showPicker(e) {
-      const { top, left } = this.$refs.dxColorTrigger.getBoundingClientRect()
-      this.colorPickerLeft = e.clientX - left
-      this.colorPickerTop = e.clientY - top
+      const { top, left, bottom } = this.$refs.dxColorTrigger.getBoundingClientRect()
+      // const {height} = this.$refs.dxColorPicker.getBoundingClientRect()
+      // debugger
+      this.colorPickerLeft = left - (this.hueWidth + 20 - 40) / 2
+      this.colorPickerTop = top + 40 
       this.showColorPicker = !this.showColorPicker
     },
     getResObj() {
@@ -233,6 +235,7 @@ export default {
           }
         })
       }
+      debugger
       this.triggerColor = rgba
       return {
         rgba: rgba,
@@ -241,6 +244,7 @@ export default {
       }
     },
     updateColorList(obj) {
+      debugger
       this.colorList = obj.colorList
       this.angle = obj.angle
       this.type = obj.type
@@ -305,12 +309,11 @@ export default {
       })
     },
     selectColor(color) {
+      debugger
       let curColor = ''
       if (color.includes('linear-gradient')) {
-        this.$nextTick(() => {
-          this.angle = Number(color.match(/\d{0,}deg/)[0].match(/\d{0,}/)[0])
-          this.type = 'liner'
-        })
+        this.angle = Number(color.match(/\d{0,}deg/)[0].match(/\d{0,}/)[0])
+        this.type = 'liner'
         const perList = color.match(/\d{0,}%/ig).map(item => {
           return Number(item.match(/\d{1,}/)[0])
         })
@@ -385,7 +388,7 @@ export default {
     box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.16);
     z-index: 1;
     transition: all 0.5s ease;
-    position: absolute;
+    position: fixed;
     &.light {
         background: #f7f8f9;
         .color-show {

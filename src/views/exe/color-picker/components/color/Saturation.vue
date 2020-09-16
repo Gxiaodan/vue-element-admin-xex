@@ -55,7 +55,7 @@
 
 <script>
 import mixin from './mixin'
-import { deepClone } from '@/utils/index.js'
+import { deepClone, deepEqual } from "@/utils/index.js"
 export default {
   components: {
 
@@ -122,17 +122,18 @@ export default {
   watch: {
     rgba: {
       handler(n, o) {
-        //   if(){
-
-        //   }
-        this.curColor = `rgba(${this.rgba.r}, ${this.rgba.g}, ${this.rgba.b}, ${this.rgba.a})`
-        this.updateColorList()
+        debugger
+        if(o != undefined && !deepEqual(n,o)){
+          this.curColor = `rgba(${this.rgba.r}, ${this.rgba.g}, ${this.rgba.b}, ${this.rgba.a})`
+          this.updateColorList()
+        }
       },
       immediate: true
     },
     degValue: {
       handler(n, o) {
         if (n != o) {
+          debugger
           this.$emit('updateColorList', { colorList: this.sortList(), angle: n, type: this.activeType })
         }
       },
@@ -140,15 +141,17 @@ export default {
     },
     colorObj: {
       handler(n, o) {
-        this.activeType = n.type
-        this.degValue = n.angle
-        this.slidePosList = n.colorList.map(item => {
-          let pos = item.per * this.width
-          if (pos >= this.width - 10) pos = this.width - 10
-          return pos
-        })
-        this.linerColorList = deepClone(n.colorList)
-        this.sliderBarBgColor = this.sliderBarBg()
+        if(!deepEqual(n,o)){
+          this.activeType = n.type
+          this.degValue = n.angle
+          this.slidePosList = n.colorList.map(item => {
+            let pos = item.per * this.width
+            if (pos >= this.width - 10) pos = this.width - 10
+            return pos
+          })
+          this.linerColorList = deepClone(n.colorList)
+          this.sliderBarBgColor = this.sliderBarBg()
+        }
       },
       immediate: true
     }
@@ -201,7 +204,7 @@ export default {
         }
       }
       this.sliderBarBgColor = this.sliderBarBg()
-
+debugger
       // console.log({ colorList: this.sortList(), angle: this.degValue, type: this.activeType }, "changeColor")
       this.$emit('updateColorList', { colorList: this.sortList(), angle: this.degValue, type: this.activeType })
     },

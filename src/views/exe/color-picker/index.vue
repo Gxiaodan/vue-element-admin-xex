@@ -33,6 +33,10 @@
       @click="changeTheme"
     />
     <div class="box" />
+     <color-picker
+          :color="color"
+          @changeColor="changeColor"
+        />
   </div>
 </template>
 
@@ -47,7 +51,7 @@ export default {
   },
   data() {
     return {
-      color: '#59c7f9',
+      color: 'linear-gradient(180deg, rgba(255, 0, 49, 1) 0%,rgba(213, 255, 0, 1) 70%)',
       suckerCanvas: null,
       suckerArea: [],
       isOpenSucker: false,

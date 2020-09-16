@@ -55,7 +55,6 @@
 </template>
 
 <script>
-import { array } from 'jszip/lib/support'
 import mixin from './mixin'
 export default {
   mixins: [mixin],
