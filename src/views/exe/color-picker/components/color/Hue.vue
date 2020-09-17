@@ -34,11 +34,11 @@ export default {
     }
   },
   // 不能监听，否则操作saturation时，这里的slide会抖动
-  // watch: {
-  //     'hsv.h'() {
-  //         this.renderSlide()
-  //     }
-  // },
+  watch: {
+    'hsv.h'() {
+      this.renderSlide()
+    }
+  },
   mounted() {
     this.renderColor()
     this.renderSlide()

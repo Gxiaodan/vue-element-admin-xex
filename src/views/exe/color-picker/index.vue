@@ -6,15 +6,14 @@
         vue-colorpicker
       </div>
       <div class="cover">
-        <color-picker
+        <!-- <color-picker
           :theme="theme"
-          :color="color"
+          v-model="color"
           :sucker-hide="false"
           :sucker-canvas="suckerCanvas"
           :sucker-area="suckerArea"
-          @changeColor="changeColor"
           @openSucker="openSucker"
-        />
+        /> -->
         <img v-if="isOpenSucker" ref="cover">
       </div>
     </div>
@@ -33,9 +32,11 @@
       @click="changeTheme"
     />
     <div class="box" />
+    {{color}}
      <color-picker
-          :color="color"
-          @changeColor="changeColor"
+        :theme="theme"
+        v-model="color"
+        @changeColor = "changeColor"
         />
   </div>
 </template>
@@ -61,9 +62,8 @@ export default {
   },
   methods: {
     changeColor(color) {
+      debugger
       console.log(color, 'color==========')
-      const { r, g, b, a } = color.rgba
-      this.color = `rgba(${r}, ${g}, ${b}, ${a})`
     },
     openSucker(isOpen) {
       this.isOpenSucker = isOpen

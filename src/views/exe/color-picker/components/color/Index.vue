@@ -13,14 +13,10 @@
       <div class="color-set">
         <Saturation
           ref="saturation"
-          :color="rgbString"
-          :rgba="rgba"
-          :hsv="hsv"
+          :colorObj="colorObj"
+          @changeActiveSlide = 'changeActiveSlide'
+          @updateColor = "updateColor"
           :size="hueWidth"
-          :color-obj="{type, angle, colorList}"
-          @updateColorList="updateColorList"
-          @selectSaturation="selectSaturation"
-          @selectSlide="selectColor"
         />
         <Hue
           ref="hue"
@@ -66,7 +62,7 @@
         @inputColor="inputRgba"
       />
       <Colors
-        :color-list="colorList"
+        :color="triggerColor"
         :angle="angle"
         :color-type="type"
         @selectColor="selectColor"
@@ -95,6 +91,10 @@ export default {
     Colors
   },
   mixins: [mixin],
+  model: {
+    prop: 'color',
+    event: 'changeColor'
+  },
   props: {
     color: {
       type: String,
@@ -134,10 +134,22 @@ export default {
       colorList: [],
       angle: 180,
       type: 'single',
-      triggerColor: this.color,
+      triggerColor: '#000000',
       showColorPicker: false,
       colorPickerLeft: 0,
-      colorPickerTop: 0
+      colorPickerTop: 0,
+      activeIndex: 0,
+      colorObj: {}
+    }
+  },
+  watch: {
+    triggerColor: {
+      handler(n, o) {
+        if (n != undefined && n != o && !n.includes('undefined')) {
+          this.$emit('changeColor', n)
+        }
+      },
+      immediate: true
     }
   },
   computed: {
@@ -188,86 +200,82 @@ export default {
     // })
   },
   methods: {
+    updateColor(val) {
+      // this.color = val
+    },
+    changeActiveSlide({ index, color, per, isAdd }) {
+      debugger
+      const { r, g, b, a, h, s, v } = this.setColorValue(color)
+      Object.assign(this, { r, g, b, a, h, s, v })
+      this.activeIndex = index
+      this.colorObj = this.getLinerObj(this.triggerColor)
+      const list = this.colorObj.colorList
+      if (isAdd) {
+        list.splice(index, 0, {
+          per: per,
+          color: color
+        })
+      } else {
+        list.splice(index, 1, {
+          per: per,
+          color: color
+        })
+      }
+      console.log(this.activeIndex,'activeIndex')
+      list[this.activeIndex].color = `rgba(${r}, ${g}, ${b}, ${this.a})`
+      const angle = this.colorObj.angle
+      const value = this.getlinerColor(list)
+      this.triggerColor = `linear-gradient(${angle}deg, ${value})`
+    },
     showPicker(e) {
-      const { top, left, bottom } = this.$refs.dxColorTrigger.getBoundingClientRect()
-      // const {height} = this.$refs.dxColorPicker.getBoundingClientRect()
-      // debugger
+      const { top, left } = this.$refs.dxColorTrigger.getBoundingClientRect()
       this.colorPickerLeft = left - (this.hueWidth + 20 - 40) / 2
-      this.colorPickerTop = top + 40 
+      this.colorPickerTop = top + 40
       this.showColorPicker = !this.showColorPicker
     },
-    getResObj() {
-      let rgba = ''
-      let hex = ''
-      let list = []
-      if (this.type == 'single') {
-        rgba = this.rgbaString
-        hex = this.modelHex
-        list = [
-          {
-            per: 0,
-            color: {
-              rgba: this.rgbaString,
-              hex: this.modelHex
-            }
-          }
-        ]
-      } else {
-        this.colorList.forEach((item, index) => {
-          rgba += item.color
-          hex += this.rgb2hex(item.color, true)
-          rgba += ' '
-          hex += ' '
-          rgba += (Number.parseInt(item.per * 100) + '%')
-          if (index < this.colorList.length - 1) { rgba += ',' }
-          hex += (Number.parseInt(item.per * 100) + '%')
-          if (index < this.colorList.length - 1) { hex += ',' }
-        })
-        rgba = `linear-gradient(${this.angle}deg, ${rgba})`
-        hex = `linear-gradient(${this.angle}deg, ${hex})`
-        list = this.colorList.map(item => {
-          return {
-            per: 0,
-            color: {
-              rgba: item.color,
-              hex: this.rgb2hex(item.color, true)
-            }
-          }
-        })
-      }
-      debugger
-      this.triggerColor = rgba
-      return {
-        rgba: rgba,
-        hex: hex,
-        colorList: list
-      }
-    },
     updateColorList(obj) {
-      debugger
       this.colorList = obj.colorList
       this.angle = obj.angle
       this.type = obj.type
-      this.$emit('changeColor', this.getResObj())
     },
     selectSaturation(color) {
       this.selectAlpha(color.a)
       const { r, g, b, h, s, v } = this.setColorValue(color)
       Object.assign(this, { r, g, b, h, s, v })
+      // this.activeColor = `rgba(${r}, ${g}, ${b}, ${this.a})`
       this.setText()
     },
     selectHue(color) {
+      debugger
       const { r, g, b, h, s, v } = this.setColorValue(color)
       Object.assign(this, { r, g, b, h, s, v })
       this.setText()
-      this.$nextTick(() => {
-        this.$refs.saturation.renderColor()
-        this.$refs.saturation.renderSlide()
-      })
+      if (this.triggerColor.includes('linear-gradient')) {
+        this.colorObj = this.getLinerObj(this.triggerColor)
+        const list = this.colorObj.colorList
+        list[this.activeIndex].color = `rgba(${r}, ${g}, ${b}, ${this.a})`
+        const angle = this.colorObj.angle
+        const value = this.getlinerColor(list)
+        this.triggerColor = `linear-gradient(${angle}deg, ${value})`
+      } else {
+        this.triggerColor = `rgba(${r}, ${g}, ${b}, ${this.a})`
+        this.colorObj = {color: this.triggerColor }
+      }
     },
     selectAlpha(a) {
       this.a = a
       this.setText()
+      if (this.triggerColor.includes('linear-gradient')) {
+        this.colorObj = this.getLinerObj(this.triggerColor)
+        const list = this.colorObj.colorList
+        list[this.activeIndex].color = `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`
+        const angle = this.colorObj.angle
+        const value = this.getlinerColor(list)
+        this.triggerColor = `linear-gradient(${angle}deg, ${value})`
+      } else {
+        this.triggerColor = `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`
+        this.colorObj = {color: this.triggerColor }
+      }
     },
     inputHex(color) {
       const { r, g, b, a, h, s, v } = this.setColorValue(color)
@@ -309,44 +317,18 @@ export default {
       })
     },
     selectColor(color) {
-      debugger
-      let curColor = ''
-      if (color.includes('linear-gradient')) {
-        this.angle = Number(color.match(/\d{0,}deg/)[0].match(/\d{0,}/)[0])
-        this.type = 'liner'
-        const perList = color.match(/\d{0,}%/ig).map(item => {
-          return Number(item.match(/\d{1,}/)[0])
-        })
-        const colors = []
-        color.match(/rgba.*/)[0].trim().split('%').forEach(item => {
-          if (item.includes('rgba')) {
-            colors.push(item.match(/rgba.*\)/ig)[0])
-          }
-        })
-        const colorList = perList.map((item, index) => {
-          return {
-            per: item / 100,
-            color: colors[index]
-          }
-        })
-        this.updateColorList({
-          colorList: colorList,
-          angle: this.angle,
-          type: this.type
-        })
-        curColor = colors[0]
+      this.triggerColor = color
+      let activeColor
+      if (this.triggerColor.includes('linear-gradient')) {
+        this.colorObj = this.getLinerObj(color)
+        activeColor = this.colorObj.colorList[0].color
       } else {
-        this.type = 'single'
-        curColor = color
+        activeColor = color
+        this.colorObj = {color: this.triggerColor }
       }
-      const { r, g, b, a, h, s, v } = this.setColorValue(curColor)
+      const { r, g, b, a, h, s, v } = this.setColorValue(activeColor)
       Object.assign(this, { r, g, b, a, h, s, v })
       this.setText()
-      this.$nextTick(() => {
-        this.$refs.saturation.renderColor()
-        this.$refs.saturation.renderSlide()
-        this.$refs.hue.renderSlide()
-      })
     }
   }
 }
@@ -386,11 +368,23 @@ export default {
     background: #1d2024;
     border-radius: 4px;
     box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.16);
-    z-index: 1;
+    z-index: 9999;
     transition: all 0.5s ease;
     position: fixed;
     &.light {
         background: #f7f8f9;
+        .liner{
+            border-top: 1px solid #ccc;
+        }
+        .direction-box{
+          .name{
+            background: #f7f8f9;
+          }
+          .value{
+            background: #eceef0;
+            color: #666;
+          }
+        }
         .color-show {
             .sucker {
                 background: #eceef0;

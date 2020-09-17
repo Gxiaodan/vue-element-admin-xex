@@ -1,3 +1,5 @@
+
+import { deepClone, deepEqual } from "@/utils/index.js"
 export default {
   methods: {
     setColorValue(color) {
@@ -95,6 +97,67 @@ export default {
       const s = parseFloat((max === 0 ? 0 : 1 - min / max).toFixed(2))
       const v = parseFloat(max.toFixed(2))
       return { h, s, v }
+    },
+    getLinerObj(color) {
+      const angle = Number(color.match(/\d{0,}deg/)[0].match(/\d{0,}/)[0])
+      const perList = color.match(/\d{0,}%/ig).map(item => {
+        return Number(item.match(/\d{1,}/)[0])
+      })
+      const colors = []
+      color.match(/rgba.* | #.*/)[0].trim().split('%').forEach(item => {
+        if (item.includes('rgba') | item.includes('#')) {
+          let color = ''
+          if (item.match(/rgba.*\)/ig)) {
+            color = item.match(/rgba.*\)/ig)[0]
+          } else if (item.match(/#.*\)/ig)) {
+            color = item.match(/#.*\)/ig)[0]
+          } else {
+            return
+          }
+          colors.push(color)
+        }
+      })
+      const colorList = perList.map((item, index) => {
+        return {
+          per: item / 100,
+          color: colors[index]
+        }
+      })
+      return {
+        colorList,
+        angle
+      }
+    },
+    sortList(oriList, param) {
+      const list = deepClone(oriList)
+      list.sort(function(obj1, obj2) {
+        var val1 = obj1[param]
+        var val2 = obj2[param]
+        if (val1 < val2) { // 正序
+          return -1
+        } else if (val1 > val2) {
+          return 1
+        } else {
+          return 0
+        }
+      })
+      return list
+    },
+    getlinerColor(list) {
+      const colorList = this.sortList(list, 'per')
+      let value = ''
+      if (colorList.length == 1) {
+        value = `${colorList[0].color} 0%, ${colorList[0].color} 100%`
+      } else {
+        colorList.forEach((item, index) => {
+          value += item.color
+          value += ' '
+          value += (Number.parseInt(item.per * 100) + '%')
+          if (index < colorList.length - 1) { value += ',' }
+        })
+        // value = `linear-gradient(${angle}deg, ${value})`
+      }
+      return value
     }
   }
 }

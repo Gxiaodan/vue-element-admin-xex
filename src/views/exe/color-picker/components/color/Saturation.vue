@@ -11,7 +11,7 @@
       />
       <div v-if="activeType == 'liner'" class="direction-box">
         <span class="name">角度</span>
-        <input v-model="degValue" class="value">
+        <input v-model="degValue" class="value" @change="changeAngle">
         <span class="unit">deg</span>
       </div>
       <div
@@ -21,7 +21,7 @@
       >
         <div
           class="slider-bar"
-          :style="{width: `${width}px`, height: `${height}px`,
+          :style="{width: `${size}px`, height: `${height}px`,
                    borderRadius: `${height/2}px`, background: `linear-gradient(90deg, ${sliderBarBgColor})`}"
         />
         <div
@@ -31,17 +31,22 @@
           :class="{'active': activeSlide == index}"
           class="slide"
         />
-        <!-- <div
+        <div
           v-for="(posX, index) in slidePosList"
           :key="`${index}_num`"
           :style="{left: `${posX -2 }px`}"
           class="slide-number"
-        >{{Number.parseInt(linerColorList[index].per * 100) + '%'}}</div> -->
+        >{{Number.parseInt(linerColorList[index].per * 100) + '%'}}</div>
       </div>
+    </div>
+    <div class="saturation-tit">
+      <span>拾色器</span>
+      <i class="fold-box-icon fold-icon el-icon-arrow-down" :class="showSaturation ? 'fold' : ''" @click="showSaturation = !showSaturation" />
     </div>
     <div
       ref="saturation"
       class="saturation"
+      :style="{height: showSaturation ? size + 'px' : 0}"
       @mousedown.prevent.stop="selectSaturation"
     >
       <canvas ref="canvasSaturation" />
@@ -55,47 +60,30 @@
 
 <script>
 import mixin from './mixin'
-import { deepClone, deepEqual } from "@/utils/index.js"
 export default {
   components: {
 
   },
   mixins: [mixin],
+  // model: {
+  //   prop: 'color',
+  //   event: 'updateColor'
+  // },
   props: {
-    color: {
-      type: String,
-      default: '#000000'
-    },
-    hsv: {
+    colorObj: {
+      required: false,
       type: Object,
-      default: null
-    },
-    rgba: {
-      type: Object,
-      default: null
+      default: ()=> {
+        return {}
+      }
     },
     size: {
-      type: Number,
-      default: 200
-    },
-    width: {
       type: Number,
       default: 200
     },
     height: {
       type: Number,
       default: 7
-    },
-    colorObj: {
-      type: Object,
-      required: false,
-      default: () => {
-        return {
-          type: 'single',
-          angle: 0,
-          colorList: []
-        }
-      }
     }
   },
   data() {
@@ -107,8 +95,10 @@ export default {
       slidePosList: [0],
       activeSlide: 0,
       linerColorList: [{ per: 0, color: '' }],
-      curColor: `rgba(${this.rgba.r}, ${this.rgba.g}, ${this.rgba.b}, ${this.rgba.a})`,
-      sliderBarBgColor: ''
+      curColor: '',
+      sliderBarBgColor: '',
+      showSaturation: true,
+      a: 1
     }
   },
   computed: {
@@ -120,98 +110,93 @@ export default {
   },
   // 不能监听，否则自己改变自己时，颜色也会发生变化
   watch: {
-    rgba: {
-      handler(n, o) {
-        debugger
-        if(o != undefined && !deepEqual(n,o)){
-          this.curColor = `rgba(${this.rgba.r}, ${this.rgba.g}, ${this.rgba.b}, ${this.rgba.a})`
-          this.updateColorList()
-        }
-      },
-      immediate: true
-    },
-    degValue: {
-      handler(n, o) {
-        if (n != o) {
-          debugger
-          this.$emit('updateColorList', { colorList: this.sortList(), angle: n, type: this.activeType })
-        }
-      },
-      immediate: true
-    },
+
     colorObj: {
       handler(n, o) {
-        if(!deepEqual(n,o)){
-          this.activeType = n.type
-          this.degValue = n.angle
-          this.slidePosList = n.colorList.map(item => {
-            let pos = item.per * this.width
-            if (pos >= this.width - 10) pos = this.width - 10
-            return pos
-          })
-          this.linerColorList = deepClone(n.colorList)
-          this.sliderBarBgColor = this.sliderBarBg()
+        if (!deepEqual(n, o)) {
+          if (n.colorList) {
+            this.activeType = 'liner'
+            this.linerColorList = n.colorList
+            this.degValue = n.angle
+            this.slidePosList = this.linerColorList.map(item => {
+              let pos = item.per * this.size
+              if (pos >= this.size - 10) pos = this.size - 10
+              return pos
+            })
+            this.sliderBarBgColor = this.getlinerColor(this.linerColorList)
+            this.curColor = this.linerColorList[this.activeSlide].color
+
+          } else if (n.color) {
+            this.curColor = this.color
+          }
+          if (this.$refs.canvasSaturation) {
+            this.renderColor()
+          }
+          this.a = this.setColorValue(this.curColor).a
+          // this.curColor = this.linerColorList[0].color
         }
+        // if (n != undefined && !n.includes('undefined') && n!=o) {
+        //   if (this.color != undefined && !this.color.includes('undefined')) {
+        //     if (this.color.includes('linear-gradient')) {
+        //       this.activeType = 'liner'
+        //       const colorObj = this.getLinerObj(this.color)
+        //       this.linerColorList = colorObj.colorList
+        //       this.degValue = colorObj.angle
+        //       this.slidePosList = this.linerColorList.map(item => {
+        //         let pos = item.per * this.size
+        //         if (pos >= this.size - 10) pos = this.size - 10
+        //         return pos
+        //       })
+        //       this.sliderBarBgColor = this.getlinerColor(this.linerColorList)
+        //       this.curColor = this.linerColorList[0].color
+        //     } else {
+        //       this.curColor = this.color
+        //     }
+        //     if (this.$refs.canvasSaturation) {
+        //       this.renderColor()
+        //     }
+        //     this.a = this.setColorValue(this.curColor).a
+        //   }
+        // }
       },
       immediate: true
     }
   },
   mounted() {
+    if (this.color != undefined && !this.color.includes('undefined')) {
+      if (this.color != undefined && !this.color.includes('undefined')) {
+        if (this.color.includes('linear-gradient')) {
+          this.activeType = 'liner'
+          const colorObj = this.getLinerObj(this.color)
+          this.linerColorList = colorObj.colorList
+          this.degValue = colorObj.angle
+          this.slidePosList = this.linerColorList.map(item => {
+            let pos = item.per * this.size
+            if (pos >= this.size - 10) pos = this.size - 10
+            return pos
+          })
+          this.sliderBarBgColor = this.getlinerColor(this.linerColorList)
+          this.curColor = this.linerColorList[0].color
+        } else {
+          this.curColor = this.coloe
+        }
+        if (this.$refs.canvasSaturation) {
+          this.renderColor()
+        }
+        this.a = this.setColorValue(this.curColor).a
+      }
+    }
     this.renderColor()
     this.renderSlide()
   },
   methods: {
-    sliderBarBg() {
-      const list = this.sortList()
-      let resStr = ''
-      if (list.length == 1) {
-        resStr = `${list[0].color} 0%, ${list[0].color} 100%`
-      } else {
-        list.forEach((item, index) => {
-          resStr += item.color
-          resStr += ' '
-          resStr += (Number.parseInt(item.per * 100) + '%')
-          if (index < list.length - 1) { resStr += ',' }
-        })
-      }
-      return resStr
-    },
-    sortList() {
-      const list = deepClone(this.linerColorList)
-      list.sort(function(obj1, obj2) {
-        var val1 = obj1['per']
-        var val2 = obj2['per']
-        if (val1 < val2) { // 正序
-          return -1
-        } else if (val1 > val2) {
-          return 1
-        } else {
-          return 0
-        }
-      })
-      return list
-    },
-    updateColorList() {
-      if (this.activeSlide == this.slidePosList.length - 1 && this.linerColorList.length != this.slidePosList.length) {
-        this.linerColorList.push({
-          per: this.slidepercent(this.slidePosList[this.slidePosList.length - 1]),
-          color: this.curColor
-        })
-      } else {
-        this.linerColorList[this.activeSlide] = {
-          per: this.slidepercent(this.slidePosList[this.activeSlide]),
-          color: this.curColor
-        }
-      }
-      this.sliderBarBgColor = this.sliderBarBg()
-debugger
-      // console.log({ colorList: this.sortList(), angle: this.degValue, type: this.activeType }, "changeColor")
-      this.$emit('updateColorList', { colorList: this.sortList(), angle: this.degValue, type: this.activeType })
+    changeAngle(val) {
+      this.$emit('updateColor', `linear-gradient(${this.degValue}deg, ${this.sliderBarBgColor})`)
     },
     slidepercent(left) {
       let per = 0
-      per = left / this.width
-      if ((left + 10) / this.width == 1) {
+      per = left / this.size
+      if ((left + 10) / this.size == 1) {
         per = 1
       }
       return per
@@ -220,6 +205,7 @@ debugger
       const { left: hueLeft } = this.$refs.saturation.getBoundingClientRect()
       this.activeSlide = -1
       const x = e.clientX - hueLeft
+      let isAdd = true
       this.slidePosList.forEach((item, i) => {
         if (x >= (item - 7) && x <= (item + 7)) {
           this.activeSlide = i
@@ -228,20 +214,42 @@ debugger
       if (this.activeSlide == -1) {
         this.activeSlide = this.slidePosList.length
         this.slidePosList.push(x)
+        this.linerColorList.push({
+          per: this.slidepercent(x),
+          color: this.curColor
+        })
+        isAdd = true
       } else {
         this.curColor = this.linerColorList[this.activeSlide].color
-        this.$emit('selectSlide', this.curColor)
+        this.linerColorList.splice(this.activeSlide, 1, {
+          per: this.slidepercent(x),
+          color: this.curColor
+        })
+        isAdd = false
       }
+      this.renderColor()
+      this.$emit('changeActiveSlide', { index: this.activeSlide, color: this.curColor, per: this.slidepercent(x), isAdd: isAdd })
+      const tempList = deepClone(this.linerColorList)
+      this.sliderBarBgColor = this.getlinerColor(tempList)
+      this.$emit('updateColor', `linear-gradient(${this.degValue}deg, ${this.sliderBarBgColor})`)
       const mousemove = e => {
         let x = e.clientX - hueLeft
         if (x <= 0) {
           x = 0
         }
-        if (x >= this.width - 10) {
-          x = this.width - 10
+        if (x >= this.size - 10) {
+          x = this.size - 10
         }
         this.slidePosList.splice(this.activeSlide, 1, x)
-        this.updateColorList()
+        this.linerColorList.splice(this.activeSlide, 1, {
+          per: this.slidepercent(x),
+          color: this.curColor
+        })
+        console.log(this.linerColorList, 'this.linerColorList')
+        const tempList = deepClone(this.linerColorList)
+        this.sliderBarBgColor = this.getlinerColor(tempList)
+        this.$emit('updateColor', `linear-gradient(${this.degValue}deg, ${this.sliderBarBgColor})`)
+      this.$emit('changeActiveSlide', { index: this.activeSlide, color: this.curColor, per: this.slidepercent(x), isAdd: isAdd })
       }
 
       mousemove(e)
@@ -258,23 +266,26 @@ debugger
       this.activeType = type
     },
     renderColor() {
-      const canvas = this.$refs.canvasSaturation
-      const size = this.size
-      const ctx = canvas.getContext('2d')
-      canvas.width = size
-      canvas.height = size
-      const colorArr = this.curColor.replace(/rgba\(|\)|\s/ig, '').split(',')
-      ctx.fillStyle = `rgb(${colorArr[0]}, ${colorArr[1]}, ${colorArr[2]})`
-      ctx.fillStyle = `rgb(${colorArr[0]}, ${colorArr[1]}, ${colorArr[2]})`
-      ctx.fillRect(0, 0, size, size)
+      // if (this.$refs.canvasSaturation) {
+        const canvas = this.$refs.canvasSaturation
+        const size = this.size
+        const ctx = canvas.getContext('2d')
+        canvas.width = size
+        canvas.height = size
+        const colorObj = this.setColorValue(this.curColor)
+        ctx.fillStyle = `rgb(${colorObj.r}, ${colorObj.g}, ${colorObj.b})`
+        ctx.fillStyle = `rgb(${colorObj.r}, ${colorObj.g}, ${colorObj.b})`
+        ctx.fillRect(0, 0, size, size)
 
-      this.createLinearGradient('l', ctx, size, size, '#FFFFFF', 'rgba(255,255,255,0)')
-      this.createLinearGradient('p', ctx, size, size, 'rgba(0,0,0,0)', '#000000')
+        this.createLinearGradient('l', ctx, size, size, '#FFFFFF', 'rgba(255,255,255,0)')
+        this.createLinearGradient('p', ctx, size, size, 'rgba(0,0,0,0)', '#000000')
+      // }
     },
     renderSlide() {
+      const colorObj = this.setColorValue(this.curColor)
       this.slideSaturationStyle = {
-        left: this.hsv.s * this.size - 5 + 'px',
-        top: (1 - this.hsv.v) * this.size - 5 + 50 + 'px'
+        left: colorObj.s * this.size - 5 + 'px',
+        top: (1 - colorObj.v) * this.size - 5 + 50 + 'px'
       }
     },
     selectSaturation(e) {
@@ -306,9 +317,14 @@ debugger
         // 如果用最大值，选择的像素会是空的，空的默认是黑色
         const imgData = ctx.getImageData(Math.min(x, this.size - 1), Math.min(y, this.size - 1), 1, 1)
         const [r, g, b] = imgData.data
-        this.curColor = `rgba(${this.rgba.r}, ${this.rgba.g}, ${this.rgba.b}, ${this.rgba.a})`
-        this.$emit('selectSaturation', { r, g, b, a: this.rgba.a })
-        this.sliderBarBgColor = this.sliderBarBg()
+        this.curColor = `rgba(${r}, ${g}, ${b}, ${this.a})`
+        if (this.activeType == 'single') {
+          this.$emit('updateColor', this.curColor)
+        } else {
+          this.linerColorList[this.activeSlide].color = this.curColor
+          this.sliderBarBgColor = this.getlinerColor(this.linerColorList)
+          this.$emit('updateColor', `linear-gradient(${this.degValue}deg, ${this.sliderBarBgColor})`)
+        }
       }
 
       mousemove(e)
@@ -418,9 +434,32 @@ debugger
             }
         }
     }
+    .saturation-tit{
+      height: 16px;
+      color: #999;
+      font-size: 12px;
+      .fold-box-icon{
+          width: 16px;
+          font-weight: bold;
+          float: right;
+          cursor: pointer;
+          transition: all 0.5s ease;
+          &:hover{
+              color: #ccc;
+              font-size: 14px;
+          }
+          &.fold-icon{
+            &.fold{
+                transform: rotate(180deg);
+            }
+        }
+      }
+    }
 }
 .saturation {
     position: relative;
+    transition: all 0.2s ease;
+    overflow: hidden;
     cursor: pointer;
     .slide {
         left: 100px;

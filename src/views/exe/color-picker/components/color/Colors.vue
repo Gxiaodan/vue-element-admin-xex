@@ -59,12 +59,10 @@ import mixin from './mixin'
 export default {
   mixins: [mixin],
   props: {
-    colorList: {
-      type: Array,
+    color: {
+      type: String,
       required: false,
-      default: () => {
-        return []
-      }
+      default: '#000'
     },
     colorType: {
       type: String,
@@ -92,21 +90,6 @@ export default {
     }
   },
   computed: {
-    color() {
-      let value = ''
-      if (this.colorList.length == 1) {
-        value = this.colorList[0].color
-      } else {
-        this.colorList.forEach((item, index) => {
-          value += item.color
-          value += ' '
-          value += (Number.parseInt(item.per * 100) + '%')
-          if (index < this.colorList.length - 1) { value += ',' }
-        })
-        value = `linear-gradient(${this.angle}deg, ${value})`
-      }
-      return value
-    }
   },
   mounted() {
   },
