@@ -15,7 +15,7 @@
           v-for="item in colorsDefault"
           :key="item"
           class="item"
-          @click="selectColor(item)"
+          @click.stop.left="selectColor(item)"
           @click.prevent.stop.right="deleteColor(item, 'single', $event)"
         >
           <div
@@ -63,16 +63,6 @@ export default {
       type: String,
       required: false,
       default: '#000'
-    },
-    colorType: {
-      type: String,
-      required: false,
-      default: 'single'
-    },
-    angle: {
-      type: Number,
-      required: false,
-      default: 0
     }
   },
   data() {
@@ -90,6 +80,20 @@ export default {
     }
   },
   computed: {
+  },
+  watch: {
+    color: {
+      handler(n, o) {
+        if (n != undefined && !n.includes('undefined') && n != o) {
+          if (n.includes('linear-gradient')) {
+            this.curType == 'liner'
+          } else {
+            this.curType == 'single'
+          }
+        }
+      },
+      immediate: true
+    }
   },
   mounted() {
   },
@@ -137,9 +141,10 @@ export default {
     selectColor(color) {
       this.$emit('selectColor', color)
     },
-    setcolors(color) {
+    setcolors() {
       this.getFoldHeight()
-      if (this.colorType == 'liner') {
+      debugger
+      if (this.color.includes('linear-gradient')) {
         if (this.colorsLiner.includes(this.color)) {
           this.$message({ message: '默认色值不能重复添加', type: 'warning' })
           return
@@ -205,15 +210,16 @@ export default {
 }
 .right-box{
     position: absolute;
+    background: #1d2024;
+    color: #ccc;
     cursor: pointer;
     z-index: 9;
     width: 40px;
     font-size: 12px;
     padding: 5px;
     text-align: center;
-    background: #f7f8f9;
     border-radius: 4px;
-    box-shadow: 0 0 16px 0 rgba(0,0,0,0.16);
+    box-shadow: 0 0 6px 0 #666;
 }
 .color-box{
     transition: height 0.5s ease;

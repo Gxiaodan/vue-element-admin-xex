@@ -1,5 +1,5 @@
 
-import { deepClone, deepEqual } from "@/utils/index.js"
+import { deepClone, deepEqual } from '@/utils/index'
 export default {
   methods: {
     setColorValue(color) {

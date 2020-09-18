@@ -1,5 +1,5 @@
 <template>
-  <div class="saturation-con">
+  <div class="saturation-con" @click.prevent.stop="showRightBox = false">
     <div class="tool-con" :class="activeType == 'liner'? 'liner' : ''">
       <span
         v-for="(type, index) in colorType"
@@ -17,9 +17,10 @@
       <div
         v-if="activeType == 'liner'"
         class="liner-bar"
-        @mousedown.prevent.stop="selectSlider"
+        @mousedown.prevent.stop.left="selectSlider"
       >
         <div
+          ref="sliderBar"
           class="slider-bar"
           :style="{width: `${size}px`, height: `${height}px`,
                    borderRadius: `${height/2}px`, background: `linear-gradient(90deg, ${sliderBarBgColor})`}"
@@ -29,14 +30,18 @@
           :key="`${index}`"
           :style="{left: `${posX -2 }px`}"
           :class="{'active': activeSlide == index}"
-          class="slide"
+          class="barSlide"
+          @click.prevent.stop.right="deleteSlide(index, $event)"
         />
         <div
           v-for="(posX, index) in slidePosList"
           :key="`${index}_num`"
           :style="{left: `${posX -2 }px`}"
           class="slide-number"
-        >{{Number.parseInt(linerColorList[index].per * 100) + '%'}}</div>
+        >{{ Number.parseInt(linerColorList[index].per * 100) + '%' }}</div>
+        <div v-show="showRightBox" class="right-box" :style="{left: rightBoxLeft+'px', top: rightBoxTop+'px'}" @click="beSureDelete">
+          删除
+        </div>
       </div>
     </div>
     <div class="saturation-tit">
@@ -60,22 +65,22 @@
 
 <script>
 import mixin from './mixin'
+import { deepClone, deepEqual } from '@/utils/index'
 export default {
   components: {
 
   },
   mixins: [mixin],
-  // model: {
-  //   prop: 'color',
-  //   event: 'updateColor'
-  // },
   props: {
-    colorObj: {
+    initColor: {
       required: false,
-      type: Object,
-      default: ()=> {
-        return {}
-      }
+      type: String,
+      default: '#000'
+    },
+    curColor: {
+      required: false,
+      type: String,
+      default: '#000'
     },
     size: {
       type: Number,
@@ -95,10 +100,14 @@ export default {
       slidePosList: [0],
       activeSlide: 0,
       linerColorList: [{ per: 0, color: '' }],
-      curColor: '',
+      satuCurColor: '',
       sliderBarBgColor: '',
       showSaturation: true,
-      a: 1
+      a: 1,
+      rightBoxLeft: 0,
+      rightBoxTop: 0,
+      showRightBox: false,
+      delIndex: -1
     }
   },
   computed: {
@@ -110,88 +119,66 @@ export default {
   },
   // 不能监听，否则自己改变自己时，颜色也会发生变化
   watch: {
-
-    colorObj: {
+    curColor: {
       handler(n, o) {
-        if (!deepEqual(n, o)) {
-          if (n.colorList) {
-            this.activeType = 'liner'
-            this.linerColorList = n.colorList
-            this.degValue = n.angle
-            this.slidePosList = this.linerColorList.map(item => {
-              let pos = item.per * this.size
-              if (pos >= this.size - 10) pos = this.size - 10
-              return pos
-            })
-            this.sliderBarBgColor = this.getlinerColor(this.linerColorList)
-            this.curColor = this.linerColorList[this.activeSlide].color
-
-          } else if (n.color) {
-            this.curColor = this.color
-          }
+        if (n != o) {
+          this.satuCurColor = n
+          this.linerColorList[this.activeSlide].color = n
           if (this.$refs.canvasSaturation) {
             this.renderColor()
           }
-          this.a = this.setColorValue(this.curColor).a
-          // this.curColor = this.linerColorList[0].color
         }
-        // if (n != undefined && !n.includes('undefined') && n!=o) {
-        //   if (this.color != undefined && !this.color.includes('undefined')) {
-        //     if (this.color.includes('linear-gradient')) {
-        //       this.activeType = 'liner'
-        //       const colorObj = this.getLinerObj(this.color)
-        //       this.linerColorList = colorObj.colorList
-        //       this.degValue = colorObj.angle
-        //       this.slidePosList = this.linerColorList.map(item => {
-        //         let pos = item.per * this.size
-        //         if (pos >= this.size - 10) pos = this.size - 10
-        //         return pos
-        //       })
-        //       this.sliderBarBgColor = this.getlinerColor(this.linerColorList)
-        //       this.curColor = this.linerColorList[0].color
-        //     } else {
-        //       this.curColor = this.color
-        //     }
-        //     if (this.$refs.canvasSaturation) {
-        //       this.renderColor()
-        //     }
-        //     this.a = this.setColorValue(this.curColor).a
-        //   }
-        // }
       },
       immediate: true
+    },
+    initColor: {
+      handler(n, o) {
+        if (n != o) {
+          if (n != o && n != undefined && !n.includes('undefined')) {
+            if (this.initColor.includes('linear-gradient')) {
+              this.activeType = 'liner'
+              const colorObj = this.getLinerObj(this.initColor)
+              this.linerColorList = colorObj.colorList
+              this.degValue = colorObj.angle
+              this.slidePosList = this.linerColorList.map(item => {
+                let pos = item.per * this.size
+                if (pos >= this.size - 10) pos = this.size - 10
+                return pos
+              })
+              this.sliderBarBgColor = this.getlinerColor(this.linerColorList)
+            } else {
+              this.activeType = 'single'
+            }
+            if (this.$refs.canvasSaturation) {
+              this.renderColor()
+            }
+            this.a = this.setColorValue(this.satuCurColor).a
+          }
+        }
+      },
+      immediate: true
+
     }
   },
   mounted() {
-    if (this.color != undefined && !this.color.includes('undefined')) {
-      if (this.color != undefined && !this.color.includes('undefined')) {
-        if (this.color.includes('linear-gradient')) {
-          this.activeType = 'liner'
-          const colorObj = this.getLinerObj(this.color)
-          this.linerColorList = colorObj.colorList
-          this.degValue = colorObj.angle
-          this.slidePosList = this.linerColorList.map(item => {
-            let pos = item.per * this.size
-            if (pos >= this.size - 10) pos = this.size - 10
-            return pos
-          })
-          this.sliderBarBgColor = this.getlinerColor(this.linerColorList)
-          this.curColor = this.linerColorList[0].color
-        } else {
-          this.curColor = this.coloe
-        }
-        if (this.$refs.canvasSaturation) {
-          this.renderColor()
-        }
-        this.a = this.setColorValue(this.curColor).a
-      }
-    }
     this.renderColor()
     this.renderSlide()
   },
   methods: {
+    beSureDelete() {
+      // this.slidePosList.splice(this.delIndex, 1)
+      // this.linerColorList.splice(this.delIndex, 1)
+      // this.$emit('changeColorObj', { index: this.delIndex, color: this.satuCurColor, per: this.slidepercent(x), isAdd: -1, type: this.activeType })
+    },
+    deleteSlide(index, e) {
+      // this.delIndex = index
+      // const { top: conTop, left: conLeft } = this.$refs.sliderBar.getBoundingClientRect()
+      // this.rightBoxLeft = e.clientX - conLeft
+      // this.rightBoxTop = e.clientY - conTop
+      // this.showRightBox = true
+    },
     changeAngle(val) {
-      this.$emit('updateColor', `linear-gradient(${this.degValue}deg, ${this.sliderBarBgColor})`)
+      this.$emit('changeColorObj', { angle: this.degValue, type: this.activeType })
     },
     slidepercent(left) {
       let per = 0
@@ -199,13 +186,13 @@ export default {
       if ((left + 10) / this.size == 1) {
         per = 1
       }
-      return per
+      return Number(per.toFixed(2))
     },
     selectSlider(e) {
       const { left: hueLeft } = this.$refs.saturation.getBoundingClientRect()
       this.activeSlide = -1
-      const x = e.clientX - hueLeft
-      let isAdd = true
+      let x = e.clientX - hueLeft
+      let isAdd = 0
       this.slidePosList.forEach((item, i) => {
         if (x >= (item - 7) && x <= (item + 7)) {
           this.activeSlide = i
@@ -216,24 +203,23 @@ export default {
         this.slidePosList.push(x)
         this.linerColorList.push({
           per: this.slidepercent(x),
-          color: this.curColor
+          color: this.satuCurColor
         })
-        isAdd = true
+        isAdd = 1
       } else {
-        this.curColor = this.linerColorList[this.activeSlide].color
+        this.satuCurColor = this.linerColorList[this.activeSlide].color
         this.linerColorList.splice(this.activeSlide, 1, {
           per: this.slidepercent(x),
-          color: this.curColor
+          color: this.satuCurColor
         })
-        isAdd = false
+        isAdd = 0
       }
       this.renderColor()
-      this.$emit('changeActiveSlide', { index: this.activeSlide, color: this.curColor, per: this.slidepercent(x), isAdd: isAdd })
+      this.$emit('changeColorObj', { index: this.activeSlide, color: this.satuCurColor, per: this.slidepercent(x), isAdd: isAdd, type: this.activeType })
       const tempList = deepClone(this.linerColorList)
       this.sliderBarBgColor = this.getlinerColor(tempList)
-      this.$emit('updateColor', `linear-gradient(${this.degValue}deg, ${this.sliderBarBgColor})`)
       const mousemove = e => {
-        let x = e.clientX - hueLeft
+        x = e.clientX - hueLeft
         if (x <= 0) {
           x = 0
         }
@@ -243,13 +229,12 @@ export default {
         this.slidePosList.splice(this.activeSlide, 1, x)
         this.linerColorList.splice(this.activeSlide, 1, {
           per: this.slidepercent(x),
-          color: this.curColor
+          color: this.satuCurColor
         })
         console.log(this.linerColorList, 'this.linerColorList')
         const tempList = deepClone(this.linerColorList)
         this.sliderBarBgColor = this.getlinerColor(tempList)
-        this.$emit('updateColor', `linear-gradient(${this.degValue}deg, ${this.sliderBarBgColor})`)
-      this.$emit('changeActiveSlide', { index: this.activeSlide, color: this.curColor, per: this.slidepercent(x), isAdd: isAdd })
+        this.$emit('changeColorObj', { index: this.activeSlide, color: this.satuCurColor, per: this.slidepercent(x), isAdd: isAdd, type: this.activeType })
       }
 
       mousemove(e)
@@ -257,6 +242,7 @@ export default {
       const mouseup = () => {
         document.removeEventListener('mousemove', mousemove)
         document.removeEventListener('mouseup', mouseup)
+        this.$emit('changeColorObj', { index: this.activeSlide, color: this.satuCurColor, per: this.slidepercent(x), isAdd: isAdd, type: this.activeType })
       }
 
       document.addEventListener('mousemove', mousemove)
@@ -264,25 +250,26 @@ export default {
     },
     chooseColorType(type) {
       this.activeType = type
+      this.$emit('changeColorObj', { color: this.satuCurColor, type: this.activeType })
     },
     renderColor() {
       // if (this.$refs.canvasSaturation) {
-        const canvas = this.$refs.canvasSaturation
-        const size = this.size
-        const ctx = canvas.getContext('2d')
-        canvas.width = size
-        canvas.height = size
-        const colorObj = this.setColorValue(this.curColor)
-        ctx.fillStyle = `rgb(${colorObj.r}, ${colorObj.g}, ${colorObj.b})`
-        ctx.fillStyle = `rgb(${colorObj.r}, ${colorObj.g}, ${colorObj.b})`
-        ctx.fillRect(0, 0, size, size)
+      const canvas = this.$refs.canvasSaturation
+      const size = this.size
+      const ctx = canvas.getContext('2d')
+      canvas.width = size
+      canvas.height = size
+      const colorObj = this.setColorValue(this.satuCurColor)
+      ctx.fillStyle = `rgb(${colorObj.r}, ${colorObj.g}, ${colorObj.b})`
+      ctx.fillStyle = `rgb(${colorObj.r}, ${colorObj.g}, ${colorObj.b})`
+      ctx.fillRect(0, 0, size, size)
 
-        this.createLinearGradient('l', ctx, size, size, '#FFFFFF', 'rgba(255,255,255,0)')
-        this.createLinearGradient('p', ctx, size, size, 'rgba(0,0,0,0)', '#000000')
+      this.createLinearGradient('l', ctx, size, size, '#FFFFFF', 'rgba(255,255,255,0)')
+      this.createLinearGradient('p', ctx, size, size, 'rgba(0,0,0,0)', '#000000')
       // }
     },
     renderSlide() {
-      const colorObj = this.setColorValue(this.curColor)
+      const colorObj = this.setColorValue(this.satuCurColor)
       this.slideSaturationStyle = {
         left: colorObj.s * this.size - 5 + 'px',
         top: (1 - colorObj.v) * this.size - 5 + 50 + 'px'
@@ -317,13 +304,13 @@ export default {
         // 如果用最大值，选择的像素会是空的，空的默认是黑色
         const imgData = ctx.getImageData(Math.min(x, this.size - 1), Math.min(y, this.size - 1), 1, 1)
         const [r, g, b] = imgData.data
-        this.curColor = `rgba(${r}, ${g}, ${b}, ${this.a})`
+        this.satuCurColor = `rgba(${r}, ${g}, ${b}, ${this.a})`
         if (this.activeType == 'single') {
-          this.$emit('updateColor', this.curColor)
+          this.$emit('changeColorObj', { color: this.satuCurColor, type: this.activeType })
         } else {
-          this.linerColorList[this.activeSlide].color = this.curColor
+          this.linerColorList[this.activeSlide].color = this.satuCurColor
           this.sliderBarBgColor = this.getlinerColor(this.linerColorList)
-          this.$emit('updateColor', `linear-gradient(${this.degValue}deg, ${this.sliderBarBgColor})`)
+          this.$emit('changeColorObj', { color: this.satuCurColor, type: this.activeType, isAdd: false })
         }
       }
 
@@ -349,7 +336,7 @@ export default {
     .slider-bar{
         background: #ccc;
     }
-    .slide {
+    .barSlide {
         position: absolute;
         left: 100px;
         top: -2px;
@@ -358,13 +345,13 @@ export default {
         border-radius: 50%;
         border: 1px solid #fff;
         box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.3);
-        pointer-events: none;
+        z-index: 999;
         &.active{
             border: 2px solid #fff;
         }
     }
     .slide-number{
-      color: #fff;
+      color: #999;
       position: absolute;
       top: 12px;
       font-size: 12px;
@@ -435,9 +422,10 @@ export default {
         }
     }
     .saturation-tit{
-      height: 16px;
+      height: 20px;
       color: #999;
       font-size: 12px;
+      margin-top: 10px;
       .fold-box-icon{
           width: 16px;
           font-weight: bold;

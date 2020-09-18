@@ -31,13 +31,13 @@
       @animationend="animationEnd"
       @click="changeTheme"
     />
-    <div class="box" />
-    {{color}}
-     <color-picker
-        :theme="theme"
-        v-model="color"
-        @changeColor = "changeColor"
-        />
+    <!-- <div class="box" /> -->
+    {{ color }}
+    <color-picker
+      v-model="color"
+      :theme="theme"
+      @changeColor="changeColor"
+    />
   </div>
 </template>
 
