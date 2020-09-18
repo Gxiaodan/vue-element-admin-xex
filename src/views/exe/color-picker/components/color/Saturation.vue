@@ -1,16 +1,16 @@
 <template>
   <div class="saturation-con" @click.prevent.stop="showRightBox = false">
     <div class="tool-con" :class="activeType == 'liner'? 'liner' : ''">
-      <span
-        v-for="(type, index) in colorType"
-        :key="index"
-        :class="[{'active': activeType == type}, type + '-span']"
-        :style="type == 'liner'? linerBgStyle : ''"
-        class="color-span"
-        @click="chooseColorType(type)"
-      />
+      <el-tooltip v-for="(type, index) in colorType" :key="index" placement="top" :effect="theme == 'light' ? 'light' : 'dark'" :content="type == 'liner' ? '线性渐变':'单色'">
+        <span
+          :class="[{'active': activeType == type}, type + '-span']"
+          :style="type == 'liner'? linerBgStyle : ''"
+          class="color-span"
+          @click="chooseColorType(type)"
+        />
+      </el-tooltip>
       <div v-if="activeType == 'liner'" class="direction-box">
-        <span class="name">角度</span>
+        <span class="name"></span>
         <input v-model="degValue" class="value" @change="changeAngle">
         <span class="unit">deg</span>
       </div>
@@ -44,7 +44,7 @@
         </div>
       </div>
     </div>
-    <div class="saturation-tit">
+    <div class="saturation-tit" :style="{marginTop: activeType == 'liner' ? '10px' : '0'}">
       <span>拾色器</span>
       <i class="fold-box-icon fold-icon el-icon-arrow-down" :class="showSaturation ? 'fold' : ''" @click="showSaturation = !showSaturation" />
     </div>
@@ -89,6 +89,11 @@ export default {
     height: {
       type: Number,
       default: 7
+    },
+    theme: {
+      type: String,
+      required: false,
+      default: 'dark'
     }
   },
   data() {
@@ -113,7 +118,7 @@ export default {
   computed: {
     linerBgStyle() {
       return {
-        background: `linear-gradient(${this.degValue}deg, #ccc 0%, ${this.activeType == 'liner' ? '#00f' : '#ccc'} 100%)`
+        background: `linear-gradient(${this.degValue}deg, #fff 0%, ${this.activeType == 'liner' ? '#00f' : '#2e333a'} 100%)`
       }
     }
   },
@@ -417,7 +422,6 @@ export default {
       height: 20px;
       color: #999;
       font-size: 12px;
-      margin-top: 10px;
       .fold-box-icon{
           width: 16px;
           font-weight: bold;

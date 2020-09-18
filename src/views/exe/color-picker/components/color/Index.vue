@@ -16,6 +16,7 @@
           :init-color="initColor"
           :cur-color="curColor"
           :size="hueWidth"
+          :theme="theme"
           @changeColorObj="changeColorObj"
         />
         <Hue
@@ -100,8 +101,8 @@ export default {
     },
     theme: {
       type: String,
+      required: false,
       default: 'dark'
-      // default: 'light'
     },
     suckerHide: {
       type: Boolean,
