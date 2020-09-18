@@ -32,12 +32,14 @@
       @click="changeTheme"
     />
     <!-- <div class="box" /> -->
-    {{ color }}
-    <color-picker
-      v-model="color"
-      :theme="theme"
-      @changeColor="changeColor"
-    />
+      {{ color }}
+    <!-- <div style="float:right"> -->
+      <color-picker
+        v-model="color"
+        :theme="theme"
+        @changeColor="changeColor"
+      />
+    <!-- </div> -->
     <hr/>
     <color-picker1
         :theme="theme"

@@ -124,9 +124,6 @@ export default {
         if (n != o) {
           this.satuCurColor = n
           this.linerColorList[this.activeSlide].color = n
-          if (this.$refs.canvasSaturation) {
-            this.renderColor()
-          }
         }
       },
       immediate: true
@@ -149,9 +146,6 @@ export default {
             } else {
               this.activeType = 'single'
             }
-            // if (this.$refs.canvasSaturation) {
-            //   this.renderColor()
-            // }
             this.a = this.setColorValue(this.satuCurColor).a
           }
         }
@@ -161,7 +155,7 @@ export default {
     }
   },
   mounted() {
-    this.renderColor()
+    this.renderColor(this.satuCurColor)
     this.renderSlide()
   },
   methods: {
@@ -214,7 +208,7 @@ export default {
         })
         isAdd = 0
       }
-      this.renderColor()
+      this.renderColor(this.satuCurColor)
       this.$emit('changeColorObj', { index: this.activeSlide, color: this.satuCurColor, per: this.slidepercent(x), isAdd: isAdd, type: this.activeType })
       const tempList = deepClone(this.linerColorList)
       this.sliderBarBgColor = this.getlinerColor(tempList)
@@ -252,16 +246,14 @@ export default {
       this.activeType = type
       this.$emit('changeColorObj', { color: this.satuCurColor, type: this.activeType })
     },
-    renderColor() {
+    renderColor(color) {
       // if (this.$refs.canvasSaturation) {
       const canvas = this.$refs.canvasSaturation
       const size = this.size
       const ctx = canvas.getContext('2d')
       canvas.width = size
       canvas.height = size
-      const colorObj = this.setColorValue(this.satuCurColor)
-      ctx.fillStyle = `rgb(${colorObj.r}, ${colorObj.g}, ${colorObj.b})`
-      ctx.fillStyle = `rgb(${colorObj.r}, ${colorObj.g}, ${colorObj.b})`
+      ctx.fillStyle = color
       ctx.fillRect(0, 0, size, size)
 
       this.createLinearGradient('l', ctx, size, size, '#FFFFFF', 'rgba(255,255,255,0)')
