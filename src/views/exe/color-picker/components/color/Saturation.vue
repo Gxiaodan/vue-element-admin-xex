@@ -149,9 +149,9 @@ export default {
             } else {
               this.activeType = 'single'
             }
-            if (this.$refs.canvasSaturation) {
-              this.renderColor()
-            }
+            // if (this.$refs.canvasSaturation) {
+            //   this.renderColor()
+            // }
             this.a = this.setColorValue(this.satuCurColor).a
           }
         }

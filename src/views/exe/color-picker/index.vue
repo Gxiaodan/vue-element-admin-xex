@@ -38,17 +38,24 @@
       :theme="theme"
       @changeColor="changeColor"
     />
+    <hr/>
+    <color-picker1
+        :theme="theme"
+        :color="color"
+    />
   </div>
 </template>
 
 <script>
 import colorPicker from './components'
+import colorPicker1 from './components/index1'
 import imgCover from './cover.jpg'
 
 export default {
   name: 'ColorPicker',
   components: {
-    colorPicker
+    colorPicker,
+    colorPicker1
   },
   data() {
     return {
