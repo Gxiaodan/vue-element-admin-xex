@@ -39,9 +39,9 @@
           :style="{left: `${posX -2 }px`}"
           class="slide-number"
         >{{ Number.parseInt(linerColorList[index].per * 100) + '%' }}</div>
-        <div v-show="showRightBox" class="right-box" :style="{left: rightBoxLeft+'px', top: rightBoxTop+'px'}" @click="beSureDelete">
-          删除
-        </div>
+      </div>
+      <div v-show="showRightBox" class="right-box" :style="{left: rightBoxLeft+'px', top: rightBoxTop+'px'}" @click.prevent.stop.left="beSureDelete">
+        删除
       </div>
     </div>
     <div class="saturation-tit" :style="{marginTop: activeType == 'liner' ? '10px' : '0'}">
@@ -164,16 +164,24 @@ export default {
   },
   methods: {
     beSureDelete() {
-      // this.slidePosList.splice(this.delIndex, 1)
-      // this.linerColorList.splice(this.delIndex, 1)
-      // this.$emit('changeColorObj', { index: this.delIndex, color: this.satuCurColor, per: this.slidepercent(x), isAdd: -1, type: this.activeType })
+      if (this.slidePosList.length == 1 ) {
+        this.$message({ message: '色值不能少于一个', type: 'warning' })
+        return
+      }
+      this.slidePosList.splice(this.delIndex, 1)
+      this.linerColorList.splice(this.delIndex, 1)
+      if (this.activeSlide == this.delIndex) {
+        this.activeSlide = 0
+      }
+      this.showRightBox = false
+      this.$emit('changeColorObj', { index: this.activeSlide, angle: this.degValue, colorList: this.linerColorList, type: this.activeType })
     },
     deleteSlide(index, e) {
-      // this.delIndex = index
-      // const { top: conTop, left: conLeft } = this.$refs.sliderBar.getBoundingClientRect()
-      // this.rightBoxLeft = e.clientX - conLeft
-      // this.rightBoxTop = e.clientY - conTop
-      // this.showRightBox = true
+      this.delIndex = index
+      const { top: conTop, left: conLeft } = this.$refs.sliderBar.getBoundingClientRect()
+      this.rightBoxLeft = e.clientX - conLeft
+      this.rightBoxTop = e.clientY - conTop + 10
+      this.showRightBox = true
     },
     changeAngle(val) {
       this.$emit('changeColorObj', { index: this.activeSlide, angle: this.degValue, colorList: this.linerColorList, type: this.activeType })
@@ -394,6 +402,7 @@ export default {
         transition: all 0.5s ease;
         &.liner{
             height: 60px;
+            position: relative;
         }
         .color-span{
             display: inline-block;
