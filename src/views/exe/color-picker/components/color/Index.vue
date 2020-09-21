@@ -319,7 +319,10 @@ export default {
       let activeColor
       if (this.triggerColor.includes('linear-gradient')) {
         const colorObj = this.getLinerObj(color)
-        activeColor = colorObj.colorList[0].color
+        if (this.activeIndex >= colorObj.colorList.length) {
+          this.activeIndex = 0
+        }
+        activeColor = colorObj.colorList[this.activeIndex].color
       } else {
         activeColor = color
       }
@@ -328,6 +331,7 @@ export default {
       this.setText()
       this.$nextTick(() => {
         this.$refs.saturation.renderColor(`rgb(${r}, ${g}, ${b})`)
+        this.$refs.saturation.renderSlide()
       })
     }
   }

@@ -147,6 +147,9 @@ export default {
                 return pos
               })
               this.sliderBarBgColor = this.getlinerColor(this.linerColorList)
+              if (this.activeSlide >= this.linerColorList.length) {
+                this.activeSlide = 0
+              }
             } else {
               this.activeType = 'single'
             }

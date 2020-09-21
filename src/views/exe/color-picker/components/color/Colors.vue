@@ -119,6 +119,7 @@ export default {
           localStorage.setItem('vue-colorpicker-default', JSON.stringify(this.colorsDefault))
         }
       }
+      this.getFoldHeight()
     },
     deleteColor(color, type, e) {
       this.curColor = color
@@ -129,10 +130,12 @@ export default {
       this.showRightBox = true
     },
     getFoldHeight() {
-      this.colorBoxHeight = 10 + this.$refs.colorBox.getBoundingClientRect().height + this.$refs.linerColorBox.getBoundingClientRect().height
-      if (this.colorsDefault.length === 0 && this.colorsLiner.length == 0) {
-        this.colorBoxHeight += 30
-      }
+      this.$nextTick(() => {
+        this.colorBoxHeight = 10 + this.$refs.colorBox.getBoundingClientRect().height + this.$refs.linerColorBox.getBoundingClientRect().height
+        if (this.colorsDefault.length === 0 && this.colorsLiner.length == 0) {
+          this.colorBoxHeight += 30
+        }
+      })
     },
     foldBox() {
       this.getFoldHeight()
@@ -142,7 +145,6 @@ export default {
       this.$emit('selectColor', color)
     },
     setcolors() {
-      this.getFoldHeight()
       if (this.color.includes('linear-gradient')) {
         if (this.colorsLiner.includes(this.color)) {
           this.$message({ message: '默认色值不能重复添加', type: 'warning' })
@@ -160,6 +162,7 @@ export default {
           localStorage.setItem('vue-colorpicker-default', JSON.stringify(this.colorsDefault))
         }
       }
+      this.getFoldHeight()
     }
   }
 }
