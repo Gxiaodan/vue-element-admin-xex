@@ -177,6 +177,8 @@ export default {
         this.activeSlide = 0
       }
       this.showRightBox = false
+      this.satuCurColor = this.linerColorList[this.activeSlide].color
+      this.renderColor(this.satuCurColor)
       this.$emit('changeColorObj', { index: this.activeSlide, angle: this.degValue, colorList: this.linerColorList, type: this.activeType })
     },
     deleteSlide(index, e) {
