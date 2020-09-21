@@ -32,32 +32,32 @@
       @click="changeTheme"
     />
     <!-- <div class="box" /> -->
-      {{ color }}
+    {{ color }}
     <!-- <div style="float:right"> -->
-      <color-picker
-        v-model="color"
-        :theme="theme"
-        @changeColor="changeColor"
-      />
+    <color-picker
+      v-model="color"
+      :theme="theme"
+      @changeColor="changeColor"
+    />
     <!-- </div> -->
-    <hr/>
+    <!-- <hr/>
     <color-picker1
         :theme="theme"
         :color="color"
-    />
+    /> -->
   </div>
 </template>
 
 <script>
 import colorPicker from './components'
-import colorPicker1 from './components/index1'
+// import colorPicker1 from './components/index1'
 import imgCover from './cover.jpg'
 
 export default {
   name: 'ColorPicker',
   components: {
-    colorPicker,
-    colorPicker1
+    colorPicker
+    // colorPicker1
   },
   data() {
     return {
@@ -71,7 +71,6 @@ export default {
   },
   methods: {
     changeColor(color) {
-      debugger
       console.log(color, 'color==========')
     },
     openSucker(isOpen) {

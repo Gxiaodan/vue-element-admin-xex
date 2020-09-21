@@ -143,7 +143,6 @@ export default {
     },
     setcolors() {
       this.getFoldHeight()
-      debugger
       if (this.color.includes('linear-gradient')) {
         if (this.colorsLiner.includes(this.color)) {
           this.$message({ message: '默认色值不能重复添加', type: 'warning' })
@@ -161,19 +160,6 @@ export default {
           localStorage.setItem('vue-colorpicker-default', JSON.stringify(this.colorsDefault))
         }
       }
-    //   if (!color) {
-    //     return
-    //   }
-    //   const colors = this.colorsLiner
-    //   const index = colors.indexOf(color)
-    //   if (index >= 0) {
-    //     colors.splice(index, 1)
-    //   }
-    //   if (colors.length >= 8) {
-    //     colors.length = 7
-    //   }
-    //   colors.unshift(color)
-    //   this.colorsLiner = colors
     }
   }
 }

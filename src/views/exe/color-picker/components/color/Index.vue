@@ -144,7 +144,6 @@ export default {
       colorPickerTop: 0,
       activeIndex: 0,
       initColor: '#000',
-      initColorList: [],
       curColor: '#000'
     }
   },
@@ -189,7 +188,6 @@ export default {
   watch: {
     triggerColor: {
       handler(n, o) {
-        // debugger
         if (n != undefined && n != o && !n.includes('undefined')) {
           this.$emit('changeColor', n)
         }
@@ -199,12 +197,10 @@ export default {
     color: {
       handler(n, o) {
         if (n != undefined && n != o && !n.includes('undefined')) {
-          // debugger
           this.initColor = this.color
           if (this.initColor.includes('linear-gradient')) {
             const colorObj = this.getLinerObj(this.initColor)
             this.curColor = colorObj.colorList[this.activeIndex].color
-            this.initColorList = colorObj.colorList
           } else {
             this.curColor = this.initColor
           }
@@ -214,14 +210,6 @@ export default {
     }
   },
   mounted() {
-    // this.initColor = this.color
-    // if (this.initColor.includes('linear-gradient')) {
-    //   let colorObj = this.getLinerObj(this.initColor)
-    //   this.curColor = colorObj.colorList[0].color
-    //   this.initColorList = colorObj.colorList
-    // } else {
-    //   this.curColor = this.initColor
-    // }
   },
   created() {
     // Object.assign(this, this.setColorValue(this.color))
@@ -234,40 +222,18 @@ export default {
   },
   methods: {
     changeColorObj(obj) {
-      let { index, color, per, isAdd, type, angle } = obj
-      if (color) {
-        const { r, g, b, a, h, s, v } = this.setColorValue(color)
-        Object.assign(this, { r, g, b, a, h, s, v })
-      }
+      const { index, angle, colorList, type } = obj
+      this.activeIndex = index
+      this.angle = angle
+      this.curColor = colorList[index].color
+      const { r, g, b, a, h, s, v } = this.setColorValue(this.curColor)
+      Object.assign(this, { r, g, b, a, h, s, v })
+      this.setText()
       if (type == 'liner') {
-        if (index) {
-          this.activeIndex = index
-        }
-        if (!per && per != 0) {
-          per = this.initColorList[this.activeIndex].per
-        }
-        if (isAdd != undefined) {
-          if (isAdd == 1) {
-            this.initColorList.splice(this.activeIndex, 0, {
-              per: per,
-              color: color
-            })
-          } else if (isAdd == 0) {
-            this.initColorList.splice(this.activeIndex, 1, {
-              per: per,
-              color: color
-            })
-          } else if (isAdd == -1) {
-            this.initColorList.splice(this.activeIndex, 1)
-          }
-        }
-        if (angle) {
-          this.angle = angle
-        }
-        const value = this.getlinerColor(this.initColorList)
+        const value = this.getlinerColor(colorList)
         this.triggerColor = `linear-gradient(${this.angle}deg, ${value})`
       } else {
-        this.triggerColor = color
+        this.triggerColor = this.curColor
       }
     },
     showPicker(e) {
