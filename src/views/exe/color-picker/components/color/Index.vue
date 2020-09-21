@@ -253,20 +253,9 @@ export default {
         this.$refs.saturation.renderColor(`rgb(${r}, ${g}, ${b})`)
       })
       this.setText()
-      if (this.triggerColor.includes('linear-gradient')) {
-        const colorObj = this.getLinerObj(this.triggerColor)
-        const list = colorObj.colorList
-        list[this.activeIndex].color = `rgba(${r}, ${g}, ${b}, ${this.a})`
-        const angle = colorObj.angle
-        const value = this.getlinerColor(list)
-        this.triggerColor = `linear-gradient(${angle}deg, ${value})`
-      } else {
-        this.triggerColor = `rgba(${r}, ${g}, ${b}, ${this.a})`
-      }
+      this.updateTriggerColor()
     },
-    selectAlpha(a) {
-      this.a = a
-      this.setText()
+    updateTriggerColor() {
       if (this.triggerColor.includes('linear-gradient')) {
         const colorObj = this.getLinerObj(this.triggerColor)
         const list = colorObj.colorList
@@ -278,11 +267,17 @@ export default {
         this.triggerColor = `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`
       }
     },
+    selectAlpha(a) {
+      this.a = a
+      this.setText()
+      this.updateTriggerColor()
+    },
     inputHex(color) {
       const { r, g, b, a, h, s, v } = this.setColorValue(color)
       Object.assign(this, { r, g, b, a, h, s, v })
       this.modelHex = color
       this.modelRgba = this.rgbaStringShort
+      this.updateTriggerColor()
       this.$nextTick(() => {
         this.$refs.saturation.renderColor(`rgb(${r}, ${g}, ${b})`)
         this.$refs.saturation.renderSlide()
@@ -294,6 +289,7 @@ export default {
       Object.assign(this, { r, g, b, a, h, s, v })
       this.modelHex = this.hexString
       this.modelRgba = color
+      this.updateTriggerColor()
       this.$nextTick(() => {
         this.$refs.saturation.renderColor(`rgb(${r}, ${g}, ${b})`)
         this.$refs.saturation.renderSlide()
