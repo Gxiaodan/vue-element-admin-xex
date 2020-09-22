@@ -1,6 +1,6 @@
 <template>
   <div class="saturation-con" @click.prevent.stop="showRightBox = false">
-    <div class="tool-con" :class="activeType == 'liner'? 'liner' : ''">
+    <div v-show="isMulti != false" class="tool-con" :class="activeType == 'liner'? 'liner' : ''">
       <el-tooltip v-for="(type, index) in colorType" :key="index" placement="top" :effect="theme == 'light' ? 'light' : 'dark'" :content="type == 'liner' ? '线性渐变':'单色'">
         <span
           :class="[{'active': activeType == type}, type + '-span']"
@@ -38,7 +38,7 @@
           :key="`${index}_num`"
           :style="{left: `${posX -2 }px`}"
           class="slide-number"
-        >{{ Number.parseInt(linerColorList[index].per * 100) + '%' }}</div>
+        ><span v-show="activeSlide == index">{{ Number.parseInt(linerColorList[index].per * 100) + '%' }}</span></div>
       </div>
       <div v-show="showRightBox" class="right-box" :style="{left: rightBoxLeft+'px', top: rightBoxTop+'px'}" @click.prevent.stop.left="beSureDelete">
         删除
@@ -93,6 +93,11 @@ export default {
       type: String,
       required: false,
       default: 'dark'
+    },
+    isMulti: {
+      required: false,
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -128,6 +133,7 @@ export default {
         if (n != o) {
           this.satuCurColor = n
           this.linerColorList[this.activeSlide].color = n
+          // this.renderColor(this.satuCurColor)
         }
       },
       immediate: true
@@ -218,7 +224,7 @@ export default {
     selectSlider(e) {
       const { left: hueLeft } = this.$refs.saturation.getBoundingClientRect()
       this.activeSlide = -1
-      let x = e.clientX - hueLeft
+      let x = parseInt(e.clientX - hueLeft)
       this.slidePosList.forEach((item, i) => {
         if (x >= (item - 7) && x <= (item + 7)) {
           this.activeSlide = i
@@ -245,7 +251,7 @@ export default {
       this.$emit('changeColorObj', { index: this.activeSlide, angle: this.degValue, colorList: this.linerColorList, type: this.activeType })
       this.sliderBarBgColor = this.getlinerColor(this.linerColorList)
       const mousemove = e => {
-        x = e.clientX - hueLeft
+        x = parseInt(e.clientX - hueLeft)
         if (x <= 0) {
           x = 0
         }
@@ -273,7 +279,11 @@ export default {
             return 0
           }
         })
-        this.activeSlide = this.slidePosList.indexOf(x)
+        this.slidePosList.forEach((item, i) => {
+          if (x >= (item - 7) && x <= (item + 7)) {
+            this.activeSlide = i
+          }
+        })
         this.linerColorList = this.sortList(this.linerColorList, 'per')
         this.$emit('changeColorObj', { index: this.activeSlide, angle: this.degValue, colorList: this.linerColorList, type: this.activeType })
       }
@@ -286,18 +296,18 @@ export default {
       this.$emit('changeColorObj', { index: this.activeSlide, angle: this.degValue, colorList: this.linerColorList, type: this.activeType })
     },
     renderColor(color) {
-      // if (this.$refs.canvasSaturation) {
-      const canvas = this.$refs.canvasSaturation
-      const size = this.size
-      const ctx = canvas.getContext('2d')
-      canvas.width = size
-      canvas.height = size
-      ctx.fillStyle = color
-      ctx.fillRect(0, 0, size, size)
+      if (this.$refs.canvasSaturation) {
+        const canvas = this.$refs.canvasSaturation
+        const size = this.size
+        const ctx = canvas.getContext('2d')
+        canvas.width = size
+        canvas.height = size
+        ctx.fillStyle = color
+        ctx.fillRect(0, 0, size, size)
 
-      this.createLinearGradient('l', ctx, size, size, '#FFFFFF', 'rgba(255,255,255,0)')
-      this.createLinearGradient('p', ctx, size, size, 'rgba(0,0,0,0)', '#000000')
-      // }
+        this.createLinearGradient('l', ctx, size, size, '#FFFFFF', 'rgba(255,255,255,0)')
+        this.createLinearGradient('p', ctx, size, size, 'rgba(0,0,0,0)', '#000000')
+      }
     },
     renderSlide() {
       const colorObj = this.setColorValue(this.satuCurColor)
@@ -370,11 +380,13 @@ export default {
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        border: 1px solid #fff;
+        border: 2px solid #fff;
         box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.3);
         z-index: 999;
-        &.active{
-            border: 2px solid #fff;
+        &:hover, &.active{
+            width: 11px;
+            height: 11px;
+            border: 3px solid #fff;
         }
     }
     .slide-number{

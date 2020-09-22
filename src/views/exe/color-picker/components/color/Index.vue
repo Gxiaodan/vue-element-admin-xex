@@ -13,10 +13,11 @@
       <div class="color-set">
         <Saturation
           ref="saturation"
-          :init-color="initColor"
+          :init-color="triggerColor"
           :cur-color="curColor"
           :size="hueWidth"
           :theme="theme"
+          :is-multi = "isMulti"
           @changeColorObj="changeColorObj"
         />
         <Hue
@@ -64,6 +65,8 @@
       />
       <Colors
         :color="triggerColor"
+        :is-multi = "isMulti"
+        ref="colors"
         @selectColor="selectColor"
       />
     </div>
@@ -120,6 +123,11 @@ export default {
       required: false,
       type: Number,
       default: 28
+    },
+    isMulti: {
+      required: false,
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -143,7 +151,6 @@ export default {
       colorPickerLeft: 0,
       colorPickerTop: 0,
       activeIndex: 0,
-      initColor: '#000',
       curColor: '#000'
     }
   },
@@ -188,7 +195,7 @@ export default {
   watch: {
     triggerColor: {
       handler(n, o) {
-        if (n != undefined && n != o && !n.includes('undefined')) {
+        if (n != undefined && n != o && !n.includes('undefined') && o!=undefined)  {
           this.$emit('changeColor', n)
         }
       },
@@ -196,13 +203,13 @@ export default {
     },
     color: {
       handler(n, o) {
-        if (n != undefined && n != o && !n.includes('undefined')) {
-          this.initColor = this.color
-          if (this.initColor.includes('linear-gradient')) {
-            const colorObj = this.getLinerObj(this.initColor)
+        if (n != undefined && n != o && !n.includes('undefined') && o!=undefined) {
+          this.triggerColor = this.color
+          if (this.triggerColor.includes('linear-gradient')) {
+            const colorObj = this.getLinerObj(this.triggerColor)
             this.curColor = colorObj.colorList[this.activeIndex].color
           } else {
-            this.curColor = this.initColor
+            this.curColor = this.triggerColor
           }
         }
       },
@@ -245,6 +252,9 @@ export default {
         this.colorPickerLeft = -1 * this.hueWidth / 2
       }
       this.showColorPicker = !this.showColorPicker
+      if (this.showColorPicker) {
+        this.$refs.colors.getFoldHeight()
+      }
     },
     selectHue(color) {
       const { r, g, b, h, s, v } = this.setColorValue(color)
@@ -315,7 +325,6 @@ export default {
     },
     selectColor(color) {
       this.triggerColor = color
-      this.initColor = color
       let activeColor
       if (this.triggerColor.includes('linear-gradient')) {
         const colorObj = this.getLinerObj(color)

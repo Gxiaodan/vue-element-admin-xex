@@ -29,7 +29,7 @@
         </li>
       </ul>
       <ul
-        v-show="colorsLiner.length"
+        v-show="colorsLiner.length && isMulti != false"
         ref="linerColorBox"
         class="colors liner"
       >
@@ -63,14 +63,19 @@ export default {
       type: String,
       required: false,
       default: '#000'
+    },
+    isMulti: {
+      required: false,
+      type: Boolean,
+      default: true
     }
   },
   data() {
     return {
       imgAlphaBase64: '',
-      colorsLiner: JSON.parse(localStorage.getItem('vue-colorpicker-liner')) || [],
-      colorsDefault: JSON.parse(localStorage.getItem('vue-colorpicker-default')) || [],
-      isFold: true,
+      colorsLiner: JSON.parse(localStorage.getItem('dx-colorpicker-liner')) || [],
+      colorsDefault: JSON.parse(localStorage.getItem('dx-colorpicker-default')) || [],
+      isFold: false,
       colorBoxHeight: 0,
       showRightBox: false,
       rightBoxLeft: 0,
@@ -110,13 +115,13 @@ export default {
         const index = this.colorsLiner.indexOf(this.curColor)
         if (index >= 0) {
           this.colorsLiner.splice(index, 1)
-          localStorage.setItem('vue-colorpicker-liner', JSON.stringify(this.colorsLiner))
+          localStorage.setItem('dx-colorpicker-liner', JSON.stringify(this.colorsLiner))
         }
       } else {
         const index = this.colorsDefault.indexOf(this.curColor)
         if (index >= 0) {
           this.colorsDefault.splice(index, 1)
-          localStorage.setItem('vue-colorpicker-default', JSON.stringify(this.colorsDefault))
+          localStorage.setItem('dx-colorpicker-default', JSON.stringify(this.colorsDefault))
         }
       }
       this.getFoldHeight()
@@ -151,7 +156,7 @@ export default {
           return
         } else {
           this.colorsLiner.push(this.color)
-          localStorage.setItem('vue-colorpicker-liner', JSON.stringify(this.colorsLiner))
+          localStorage.setItem('dx-colorpicker-liner', JSON.stringify(this.colorsLiner))
         }
       } else {
         if (this.colorsDefault.includes(this.color)) {
@@ -159,7 +164,7 @@ export default {
           return
         } else {
           this.colorsDefault.push(this.color)
-          localStorage.setItem('vue-colorpicker-default', JSON.stringify(this.colorsDefault))
+          localStorage.setItem('dx-colorpicker-default', JSON.stringify(this.colorsDefault))
         }
       }
       this.getFoldHeight()
@@ -219,6 +224,7 @@ export default {
         height: 30px;
         text-align: center;
         line-height: 30px;
+        margin-top: 10px;
         border: 1px dashed #999;
     }
 }

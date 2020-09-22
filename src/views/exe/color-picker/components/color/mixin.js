@@ -1,5 +1,5 @@
 
-import { deepClone, deepEqual } from '@/utils/index'
+import { deepClone, deepEqual } from '@/utils/index.js'
 export default {
   methods: {
     setColorValue(color) {
@@ -109,8 +109,8 @@ export default {
           let color = ''
           if (item.match(/rgba.*\)/ig)) {
             color = item.match(/rgba.*\)/ig)[0]
-          } else if (item.match(/#.*\)/ig)) {
-            color = item.match(/#.*\)/ig)[0]
+          } else if (item.match(/#.*\s/ig)) {
+            color = item.match(/#.*\s/ig)[0].trim()
           } else {
             return
           }
