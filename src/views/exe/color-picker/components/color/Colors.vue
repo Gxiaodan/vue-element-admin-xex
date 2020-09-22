@@ -29,7 +29,7 @@
         </li>
       </ul>
       <ul
-        v-show="colorsLiner.length"
+        v-show="colorsLiner.length && isMulti != false"
         ref="linerColorBox"
         class="colors liner"
       >
@@ -63,14 +63,19 @@ export default {
       type: String,
       required: false,
       default: '#000'
+    },
+    isMulti: {
+      required: false,
+      type: Boolean,
+      default: true
     }
   },
   data() {
     return {
       imgAlphaBase64: '',
-      colorsLiner: JSON.parse(localStorage.getItem('vue-colorpicker-liner')) || [],
-      colorsDefault: JSON.parse(localStorage.getItem('vue-colorpicker-default')) || [],
-      isFold: true,
+      colorsLiner: JSON.parse(localStorage.getItem('dx-colorpicker-liner')) || [],
+      colorsDefault: JSON.parse(localStorage.getItem('dx-colorpicker-default')) || [],
+      isFold: false,
       colorBoxHeight: 0,
       showRightBox: false,
       rightBoxLeft: 0,
@@ -110,15 +115,16 @@ export default {
         const index = this.colorsLiner.indexOf(this.curColor)
         if (index >= 0) {
           this.colorsLiner.splice(index, 1)
-          localStorage.setItem('vue-colorpicker-liner', JSON.stringify(this.colorsLiner))
+          localStorage.setItem('dx-colorpicker-liner', JSON.stringify(this.colorsLiner))
         }
       } else {
         const index = this.colorsDefault.indexOf(this.curColor)
         if (index >= 0) {
           this.colorsDefault.splice(index, 1)
-          localStorage.setItem('vue-colorpicker-default', JSON.stringify(this.colorsDefault))
+          localStorage.setItem('dx-colorpicker-default', JSON.stringify(this.colorsDefault))
         }
       }
+      this.getFoldHeight()
     },
     deleteColor(color, type, e) {
       this.curColor = color
@@ -129,10 +135,12 @@ export default {
       this.showRightBox = true
     },
     getFoldHeight() {
-      this.colorBoxHeight = 10 + this.$refs.colorBox.getBoundingClientRect().height + this.$refs.linerColorBox.getBoundingClientRect().height
-      if (this.colorsDefault.length === 0 && this.colorsLiner.length == 0) {
-        this.colorBoxHeight += 30
-      }
+      this.$nextTick(() => {
+        this.colorBoxHeight = 10 + this.$refs.colorBox.getBoundingClientRect().height + this.$refs.linerColorBox.getBoundingClientRect().height
+        if (this.colorsDefault.length === 0 && this.colorsLiner.length == 0) {
+          this.colorBoxHeight += 30
+        }
+      })
     },
     foldBox() {
       this.getFoldHeight()
@@ -142,15 +150,13 @@ export default {
       this.$emit('selectColor', color)
     },
     setcolors() {
-      this.getFoldHeight()
-      debugger
       if (this.color.includes('linear-gradient')) {
         if (this.colorsLiner.includes(this.color)) {
           this.$message({ message: '默认色值不能重复添加', type: 'warning' })
           return
         } else {
           this.colorsLiner.push(this.color)
-          localStorage.setItem('vue-colorpicker-liner', JSON.stringify(this.colorsLiner))
+          localStorage.setItem('dx-colorpicker-liner', JSON.stringify(this.colorsLiner))
         }
       } else {
         if (this.colorsDefault.includes(this.color)) {
@@ -158,22 +164,10 @@ export default {
           return
         } else {
           this.colorsDefault.push(this.color)
-          localStorage.setItem('vue-colorpicker-default', JSON.stringify(this.colorsDefault))
+          localStorage.setItem('dx-colorpicker-default', JSON.stringify(this.colorsDefault))
         }
       }
-    //   if (!color) {
-    //     return
-    //   }
-    //   const colors = this.colorsLiner
-    //   const index = colors.indexOf(color)
-    //   if (index >= 0) {
-    //     colors.splice(index, 1)
-    //   }
-    //   if (colors.length >= 8) {
-    //     colors.length = 7
-    //   }
-    //   colors.unshift(color)
-    //   this.colorsLiner = colors
+      this.getFoldHeight()
     }
   }
 }
@@ -230,6 +224,7 @@ export default {
         height: 30px;
         text-align: center;
         line-height: 30px;
+        margin-top: 10px;
         border: 1px dashed #999;
     }
 }

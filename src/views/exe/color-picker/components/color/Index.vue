@@ -13,10 +13,11 @@
       <div class="color-set">
         <Saturation
           ref="saturation"
-          :init-color="initColor"
+          :init-color="triggerColor"
           :cur-color="curColor"
           :size="hueWidth"
           :theme="theme"
+          :is-multi="isMulti"
           @changeColorObj="changeColorObj"
         />
         <Hue
@@ -63,7 +64,9 @@
         @inputColor="inputRgba"
       />
       <Colors
+        ref="colors"
         :color="triggerColor"
+        :is-multi="isMulti"
         @selectColor="selectColor"
       />
     </div>
@@ -120,6 +123,11 @@ export default {
       required: false,
       type: Number,
       default: 28
+    },
+    isMulti: {
+      required: false,
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -143,8 +151,6 @@ export default {
       colorPickerLeft: 0,
       colorPickerTop: 0,
       activeIndex: 0,
-      initColor: '#000',
-      initColorList: [],
       curColor: '#000'
     }
   },
@@ -189,8 +195,7 @@ export default {
   watch: {
     triggerColor: {
       handler(n, o) {
-        // debugger
-        if (n != undefined && n != o && !n.includes('undefined')) {
+        if (n != undefined && n != o && !n.includes('undefined') && o != undefined) {
           this.$emit('changeColor', n)
         }
       },
@@ -198,15 +203,13 @@ export default {
     },
     color: {
       handler(n, o) {
-        if (n != undefined && n != o && !n.includes('undefined')) {
-          // debugger
-          this.initColor = this.color
-          if (this.initColor.includes('linear-gradient')) {
-            const colorObj = this.getLinerObj(this.initColor)
+        if (n != undefined && n != o && !n.includes('undefined') && o != undefined) {
+          this.triggerColor = this.color
+          if (this.triggerColor.includes('linear-gradient')) {
+            const colorObj = this.getLinerObj(this.triggerColor)
             this.curColor = colorObj.colorList[this.activeIndex].color
-            this.initColorList = colorObj.colorList
           } else {
-            this.curColor = this.initColor
+            this.curColor = this.triggerColor
           }
         }
       },
@@ -214,14 +217,6 @@ export default {
     }
   },
   mounted() {
-    // this.initColor = this.color
-    // if (this.initColor.includes('linear-gradient')) {
-    //   let colorObj = this.getLinerObj(this.initColor)
-    //   this.curColor = colorObj.colorList[0].color
-    //   this.initColorList = colorObj.colorList
-    // } else {
-    //   this.curColor = this.initColor
-    // }
   },
   created() {
     // Object.assign(this, this.setColorValue(this.color))
@@ -234,40 +229,18 @@ export default {
   },
   methods: {
     changeColorObj(obj) {
-      let { index, color, per, isAdd, type, angle } = obj
-      if (color) {
-        const { r, g, b, a, h, s, v } = this.setColorValue(color)
-        Object.assign(this, { r, g, b, a, h, s, v })
-      }
+      const { index, angle, colorList, type } = obj
+      this.activeIndex = index
+      this.angle = angle
+      this.curColor = colorList[index].color
+      const { r, g, b, a, h, s, v } = this.setColorValue(this.curColor)
+      Object.assign(this, { r, g, b, a, h, s, v })
+      this.setText()
       if (type == 'liner') {
-        if (index) {
-          this.activeIndex = index
-        }
-        if (!per && per != 0) {
-          per = this.initColorList[this.activeIndex].per
-        }
-        if (isAdd != undefined) {
-          if (isAdd == 1) {
-            this.initColorList.splice(this.activeIndex, 0, {
-              per: per,
-              color: color
-            })
-          } else if (isAdd == 0) {
-            this.initColorList.splice(this.activeIndex, 1, {
-              per: per,
-              color: color
-            })
-          } else if (isAdd == -1) {
-            this.initColorList.splice(this.activeIndex, 1)
-          }
-        }
-        if (angle) {
-          this.angle = angle
-        }
-        const value = this.getlinerColor(this.initColorList)
+        const value = this.getlinerColor(colorList)
         this.triggerColor = `linear-gradient(${this.angle}deg, ${value})`
       } else {
-        this.triggerColor = color
+        this.triggerColor = this.curColor
       }
     },
     showPicker(e) {
@@ -279,6 +252,9 @@ export default {
         this.colorPickerLeft = -1 * this.hueWidth / 2
       }
       this.showColorPicker = !this.showColorPicker
+      if (this.showColorPicker) {
+        this.$refs.colors.getFoldHeight()
+      }
     },
     selectHue(color) {
       const { r, g, b, h, s, v } = this.setColorValue(color)
@@ -287,20 +263,9 @@ export default {
         this.$refs.saturation.renderColor(`rgb(${r}, ${g}, ${b})`)
       })
       this.setText()
-      if (this.triggerColor.includes('linear-gradient')) {
-        const colorObj = this.getLinerObj(this.triggerColor)
-        const list = colorObj.colorList
-        list[this.activeIndex].color = `rgba(${r}, ${g}, ${b}, ${this.a})`
-        const angle = colorObj.angle
-        const value = this.getlinerColor(list)
-        this.triggerColor = `linear-gradient(${angle}deg, ${value})`
-      } else {
-        this.triggerColor = `rgba(${r}, ${g}, ${b}, ${this.a})`
-      }
+      this.updateTriggerColor()
     },
-    selectAlpha(a) {
-      this.a = a
-      this.setText()
+    updateTriggerColor() {
       if (this.triggerColor.includes('linear-gradient')) {
         const colorObj = this.getLinerObj(this.triggerColor)
         const list = colorObj.colorList
@@ -312,11 +277,17 @@ export default {
         this.triggerColor = `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`
       }
     },
+    selectAlpha(a) {
+      this.a = a
+      this.setText()
+      this.updateTriggerColor()
+    },
     inputHex(color) {
       const { r, g, b, a, h, s, v } = this.setColorValue(color)
       Object.assign(this, { r, g, b, a, h, s, v })
       this.modelHex = color
       this.modelRgba = this.rgbaStringShort
+      this.updateTriggerColor()
       this.$nextTick(() => {
         this.$refs.saturation.renderColor(`rgb(${r}, ${g}, ${b})`)
         this.$refs.saturation.renderSlide()
@@ -328,6 +299,7 @@ export default {
       Object.assign(this, { r, g, b, a, h, s, v })
       this.modelHex = this.hexString
       this.modelRgba = color
+      this.updateTriggerColor()
       this.$nextTick(() => {
         this.$refs.saturation.renderColor(`rgb(${r}, ${g}, ${b})`)
         this.$refs.saturation.renderSlide()
@@ -353,11 +325,13 @@ export default {
     },
     selectColor(color) {
       this.triggerColor = color
-      this.initColor = color
       let activeColor
       if (this.triggerColor.includes('linear-gradient')) {
         const colorObj = this.getLinerObj(color)
-        activeColor = colorObj.colorList[0].color
+        if (this.activeIndex >= colorObj.colorList.length) {
+          this.activeIndex = 0
+        }
+        activeColor = colorObj.colorList[this.activeIndex].color
       } else {
         activeColor = color
       }
@@ -366,6 +340,7 @@ export default {
       this.setText()
       this.$nextTick(() => {
         this.$refs.saturation.renderColor(`rgb(${r}, ${g}, ${b})`)
+        this.$refs.saturation.renderSlide()
       })
     }
   }
