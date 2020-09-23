@@ -1,5 +1,5 @@
 <template>
-  <div class="dx-color-picker-container">
+  <div class="dx-color-picker-container" v-click-outside="hide" :style="{width: triggerSize + 'px', height: triggerSize + 'px'}">
     <div ref="dxColorTrigger" class="dx-color-picker-trigger" :style="{width: triggerSize + 'px', height: triggerSize + 'px'}" @click="showPicker">
       <span class="color-picker-color" :style="{background: triggerColor}" />
     </div>
@@ -82,7 +82,12 @@ import Preview from './Preview.vue'
 import Sucker from './Sucker.vue'
 import Box from './Box.vue'
 import Colors from './Colors.vue'
+import vClickOutside from 'v-click-outside'
+
 export default {
+  directives: {
+    clickOutside: vClickOutside.directive
+  },
   components: {
     Saturation,
     Hue,
@@ -228,6 +233,9 @@ export default {
     // })
   },
   methods: {
+    hide() {
+      this.showColorPicker = false
+    },
     changeColorObj(obj) {
       const { index, angle, colorList, type } = obj
       this.activeIndex = index

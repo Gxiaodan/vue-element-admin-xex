@@ -45,6 +45,13 @@
         :theme="theme"
         :color="color"
     /> -->
+    <hr/>
+    <dxColor
+      v-model="color"
+      :theme="theme"
+      @changeColor="changeColor">
+
+    </dxColor>
   </div>
 </template>
 
@@ -52,11 +59,13 @@
 import colorPicker from './components'
 // import colorPicker1 from './components/index1'
 import imgCover from './cover.jpg'
+import dxColor from 'dx-color-picker'
 
 export default {
   name: 'ColorPicker',
   components: {
-    colorPicker
+    colorPicker,
+    dxColor
     // colorPicker1
   },
   data() {
