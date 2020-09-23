@@ -17,7 +17,7 @@
           :cur-color="curColor"
           :size="hueWidth"
           :theme="theme"
-          :is-multi = "isMulti"
+          :is-multi="isMulti"
           @changeColorObj="changeColorObj"
         />
         <Hue
@@ -64,9 +64,9 @@
         @inputColor="inputRgba"
       />
       <Colors
-        :color="triggerColor"
-        :is-multi = "isMulti"
         ref="colors"
+        :color="triggerColor"
+        :is-multi="isMulti"
         @selectColor="selectColor"
       />
     </div>
@@ -200,7 +200,7 @@ export default {
   watch: {
     triggerColor: {
       handler(n, o) {
-        if (n != undefined && n != o && !n.includes('undefined') && o!=undefined)  {
+        if (n != undefined && n != o && !n.includes('undefined') && o != undefined) {
           this.$emit('changeColor', n)
         }
       },
@@ -208,7 +208,7 @@ export default {
     },
     color: {
       handler(n, o) {
-        if (n != undefined && n != o && !n.includes('undefined') && o!=undefined) {
+        if (n != undefined && n != o && !n.includes('undefined') && o != undefined) {
           this.triggerColor = this.color
           if (this.triggerColor.includes('linear-gradient')) {
             const colorObj = this.getLinerObj(this.triggerColor)

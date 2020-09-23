@@ -173,7 +173,7 @@ export default {
   },
   methods: {
     beSureDelete() {
-      if (this.slidePosList.length == 1 ) {
+      if (this.slidePosList.length == 1) {
         this.$message({ message: '色值不能少于一个', type: 'warning' })
         return
       }
