@@ -65,6 +65,12 @@ const exeRouter = {
       component: () => import('@/views/exe/color-picker/index'),
       name: 'ColorPicker',
       meta: { title: 'ColorPicker', noCache: true }
+    },
+    {
+      path: 'progress',
+      component: () => import('@/views/exe/progress/index'),
+      name: 'progress',
+      meta: { title: 'progress', noCache: true }
     }
   ]
 }
