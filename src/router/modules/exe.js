@@ -85,8 +85,15 @@ const exeRouter = {
     path: 'tagsInput',
     component: () =>
                 import ('@/views/exe/tagsInput'),
-    name: 'tagsInput',
-    meta: { title: 'tagsInput', noCache: true }
+    name: 'slot练习tagsInput',
+    meta: { title: 'slot练习', noCache: true }
+  },
+  {
+    path: 'compositionApi',
+    component: () =>
+                import ('@/views/exe/compositionApi'),
+    name: 'compositionApi',
+    meta: { title: 'compositionApi', noCache: true }
   }
   ]
 }

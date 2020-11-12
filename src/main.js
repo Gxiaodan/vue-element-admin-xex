@@ -22,7 +22,9 @@ import VueGridLayout from 'vue-grid-layout'
 import 'vue-easytable/libs/themes-base/index.css'
 import { VTable, VPagination } from 'vue-easytable'
 import VueClipboard from 'vue-clipboard2'
+import VueCompositionApi from '@vue/composition-api'
 
+Vue.use(VueCompositionApi)
 // import { Topology, Options, registerNode } from '@topology/core';
 // import { register as registerFlow } from '@topology/flow-diagram';
 // import { register as registerActivity } from '@topology/activity-diagram';
@@ -45,13 +47,13 @@ Vue.use(VueClipboard)
 Vue.component(VTable.name, VTable)
 Vue.component(VPagination.name, VPagination)
 /**
- * If you don't want to use mock-server
- * you want to use MockJs for mock api
- * you can execute: mockXHR()
- *
- * Currently MockJs will be used in the production environment,
- * please remove it before going online ! ! !
- */
+     * If you don't want to use mock-server
+     * you want to use MockJs for mock api
+     * you can execute: mockXHR()
+     *
+     * Currently MockJs will be used in the production environment,
+     * please remove it before going online ! ! !
+     */
 if (process.env.NODE_ENV === 'production') {
   const { mockXHR } = require('../mock')
   mockXHR()
