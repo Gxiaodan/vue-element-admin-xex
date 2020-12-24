@@ -89,6 +89,12 @@ const exeRouter = {
       component: () => import('@/views/exe/recursion'),
       name: 'recursion',
       meta: { title: '递归', noCache: true }
+    },
+    {
+      path: 'threejs',
+      component: () => import('@/views/exe/threejs'),
+      name: 'threejs',
+      meta: { title: 'threejs', noCache: true }
     }
   ]
 }
