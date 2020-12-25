@@ -82,7 +82,7 @@ export default {
       // sphere.position.z = 20;
       const loader = new THREE.FileLoader()
       const _this = this
-      loader.load('./three/sx.json', function(data) {
+      loader.load('./three/sx_fill.json', function(data) {
         const jsonData = JSON.parse(data)
         _this.initMap(jsonData)
       })
