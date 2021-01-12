@@ -29,6 +29,12 @@ const threeRouter = {
       component: () => import('@/views/exe/threejs/china-map'),
       name: 'chinaMap',
       meta: { title: 'chinaMap', noCache: true }
+    },
+    {
+      path: 'chinaMap2',
+      component: () => import('@/views/exe/threejs/chinaMap'),
+      name: 'chinaMap2',
+      meta: { title: 'chinaMap2', noCache: true }
     }
   ]
 }
