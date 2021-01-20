@@ -49,7 +49,7 @@ export default {
 
       // 点光源
       var pointLight = new THREE.PointLight(0xff7f00, 1, 0)
-      pointLight.position.set(0, 0, 10)
+      pointLight.position.set(0, 0, 20)
       pointLight.castShadow = true
       this.scene.add(pointLight)
       this.scene.add(new THREE.HemisphereLight(0x443333, 0x000000))
@@ -141,15 +141,15 @@ export default {
               emissiveIntensity: 10,
               lightMapIntensity: 10,
               transparent: true,
-              opacity: 0.3,
+              opacity: 1,
               flatShading: true
             })
-            var img2 = './three/long.jpg'
+            var img2 = './waterdudv.jpg'
             const material1 = new THREE.MeshBasicMaterial({
               map: new THREE.TextureLoader().load(img2),
               // color: "#ffffff",
               transparent: true,
-              opacity: 0.5
+              opacity: 0.8
             })
 
             const mesh = new THREE.Mesh(geometry, [material, material1])
