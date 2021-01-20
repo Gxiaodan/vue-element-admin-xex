@@ -1,98 +1,115 @@
-
 <template>
-  <div>
-    <canvas id="canvas" />
+  <div class="container" style="background: rgb(12 25 30 / 30%);">
+    <div ref="canvasContent" class="canvas_content" />
+    <div id="testDiv">
+      <div>省份&nbsp;:&nbsp;&nbsp;&nbsp;{{ name }}</div>
+      <br>
+      <div>GDP &nbsp;:&nbsp;&nbsp;&nbsp;{{ gdp }}</div>
+    </div>
+    <div id="hoverDiv">
+      <div>省份&nbsp;:&nbsp;&nbsp;&nbsp;{{ name }}</div>
+    </div>
   </div>
 </template>
 <script>
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-// import chinaJson from './config/china.json'
-import * as d3geo from 'd3-geo'
+import './index.less'
+
+import ThreeMapLightBar from './ThreeMapLightBar.js'
+import ThreeMap from './ThreeMap.js'
+import { util } from './util'
 export default {
   name: 'ThreeMap',
   data() {
     return {
-      scene: null, // 场景
-      camera: null, // 摄像机
-      renderer: null, // 渲染器
-      map: null // 地图容器
+      datas: [
+        { name: '海南省', value: 60 },
+        { name: '北京市', value: 100 },
+        { name: '山东省', value: 80 },
+        { name: '海南省', value: 100 },
+        { name: '四川省', value: 100 },
+        { name: '台湾', value: 70 },
+        { name: '黑龙江省', value: 80 },
+        { name: '湖北省', value: 70 },
+        { name: '内蒙古自治区', value: 50 },
+        { name: '西藏自治区', value: 50 },
+        { name: '新疆维吾尔自治区', value: 63 },
+        { name: '甘肃省', value: 63 },
+        { name: '山西省', value: 83 },
+        { name: '上海市', value: 73 },
+        { name: '福建省', value: 63 },
+        { name: '广东省', value: 53 },
+        { name: '云南省', value: 43 },
+        { name: '辽宁省', value: 63 },
+        { name: '青海省', value: 90 }
+      ],
+      flyDatas: [
+        { source: { name: '海南省' }, target: { name: '四川省' }, value: 100 },
+        { source: { name: '北京市' }, target: { name: '四川省' }, value: 150 },
+        { source: { name: '山东省' }, target: { name: '四川省' }, value: 120 },
+        { source: { name: '台湾' }, target: { name: '四川省' }, value: 80 },
+        { source: { name: '黑龙江省' }, target: { name: '四川省' }, value: 40 },
+        { source: { name: '湖北省' }, target: { name: '四川省' }, value: 60 },
+        {
+          source: { name: '内蒙古自治区' },
+          target: { name: '四川省' },
+          value: 70
+        },
+        {
+          source: { name: '西藏自治区' },
+          target: { name: '四川省' },
+          value: 10
+        },
+        {
+          source: { name: '新疆维吾尔自治区' },
+          target: { name: '四川省' },
+          value: 200
+        },
+        { source: { name: '青海省' }, target: { name: '四川省' }, value: 20 }
+      ]
     }
   },
   mounted() {
-    // 初始化3D环境
-    this.initEnvironment()
-    // 构建光照系统
-    this.buildLightSystem()
-    // 构建辅助系统
-    this.buildAuxSystem()
-  },
-  methods: {
-    // 初始化3D环境
-    initEnvironment() {
-      this.scene = new THREE.Scene()
-      this.scene.background = new THREE.Color(0xf0f0f0)
-      // 建一个空对象存放对象
-      this.map = new THREE.Object3D()
-      // 设置相机参数
-      this.setCamera()
-      // 初始化
-      this.renderer = new THREE.WebGLRenderer({
-        alpha: true,
-        canvas: document.querySelector('canvas')
+    const loader = new THREE.FileLoader()
+    const _this = this
+    loader.load('./assets/map/china.json', function(data) {
+      const dataJson = JSON.parse(data)
+      const mapData = util.decode(dataJson)
+      console.log(mapData)
+      // _this.initMap(jsonData)
+      const map = new ThreeMapLightBar({ mapData })
+      map.on('mouseFn', (e, g, p) => {
+        const type = e.type
+        if (type == 'mousemove') {
+          map.setLabelPos(g, 'mousemove', p)
+          // map.setAreaColor(g);
+        } else if (type == 'mouseup') {
+          map.setAreaColor(g)
+          map.setLabelPos(g, 'mouseup', p)
+        }
       })
-      this.renderer.setPixelRatio(window.devicePixelRatio)
-      this.renderer.setSize(window.innerWidth, window.innerHeight - 10)
-      document.addEventListener('mousemove', this.onDocumentMouseMove, false)
-      window.addEventListener('resize', this.onWindowResize, false)
-    },
-    setCamera() {
-      this.camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 10000)
-      this.camera.position.set(0, -70, 90)
-      this.camera.lookAt(0, 0, 0)
-    },
-    // 构建辅助系统: 网格和坐标
-    buildAuxSystem() {
-      const axisHelper = new THREE.AxesHelper(2000)
-      this.scene.add(axisHelper)
-      const gridHelper = new THREE.GridHelper(600, 60)
-      this.scene.add(gridHelper)
-      const controls = new OrbitControls(this.camera, this.renderer.domElement)
-      controls.enableDamping = true
-      controls.dampingFactor = 0.25
-      controls.rotateSpeed = 0.35
-    },
-    // 光照系统
-    buildLightSystem() {
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.1)
-      directionalLight.position.set(300, 1000, 500)
-      directionalLight.target.position.set(0, 0, 0)
-      directionalLight.castShadow = true
 
-      const d = 300
-      const fov = 45 // 拍摄距离  视野角值越大，场景中的物体越小
-      const near = 1 // 相机离视体积最近的距离
-      const far = 1000// 相机离视体积最远的距离
-      const aspect = window.innerWidth / window.innerHeight // 纵横比
-      directionalLight.shadow.camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
-      directionalLight.shadow.bias = 0.0001
-      directionalLight.shadow.mapSize.width = directionalLight.shadow.mapSize.height = 1024
-      this.scene.add(directionalLight)
+      // 绘制光柱
+      map.drawLightBar(_this.datas)
 
-      const light = new THREE.AmbientLight(0xffffff, 0.6)
-      this.scene.add(light)
-    },
-    // 根据浏览器窗口变化动态更新尺寸
-    onWindowResize() {
-      this.camera.aspect = window.innerWidth / window.innerHeight
-      this.camera.updateProjectionMatrix()
-      this.renderer.setSize(window.innerWidth, window.innerHeight)
-    },
-    onDocumentMouseMove(event) {
-      event.preventDefault()
-    }
-  }
+      // 绘制线条
+      map.drawFlyLine(_this.flyDatas)
+    })
+  },
+  created() {},
+  methods: {}
 }
 </script>
 
-<style scoped></style>
+<style lang="sass">
+
+.container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  .canvas_content {
+    position: absolute;
+  }
+}
+</style>
