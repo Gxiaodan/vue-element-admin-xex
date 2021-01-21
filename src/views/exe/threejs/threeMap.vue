@@ -51,8 +51,8 @@ export default {
       var pointLight = new THREE.PointLight(0xff7f00, 1, 0)
       pointLight.position.set(0, 0, 20)
       pointLight.castShadow = true
-      this.scene.add(pointLight)
-      this.scene.add(new THREE.HemisphereLight(0x443333, 0x000000))
+      // this.scene.add(pointLight)
+      // this.scene.add(new THREE.HemisphereLight(0x443333, 0x000000))
 
       this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
       this.renderer.setSize(width, height)
@@ -136,13 +136,19 @@ export default {
             }
 
             const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
-            const material = new THREE.MeshPhongMaterial({
-              color: '#02A1E2',
-              emissiveIntensity: 10,
-              lightMapIntensity: 10,
+            var img1 = './22.jpg'
+            // const material = new THREE.MeshPhongMaterial({
+            //   color: '#02A1E2',
+            //   emissiveIntensity: 10,
+            //   lightMapIntensity: 10,
+            //   transparent: true,
+            //   opacity: 1,
+            //   flatShading: true
+            // })
+            const material = new THREE.MeshBasicMaterial({
+              map: new THREE.TextureLoader().load(img1),
               transparent: true,
-              opacity: 1,
-              flatShading: true
+              opacity: 1
             })
             var img2 = './waterdudv.jpg'
             const material1 = new THREE.MeshBasicMaterial({
@@ -156,7 +162,7 @@ export default {
             const line = new THREE.Line(linGeometry, lineMaterial)
             mesh.castShadow = true
             province.add(mesh)
-            province.add(line)
+            // province.add(line)
           })
         })
 

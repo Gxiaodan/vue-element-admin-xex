@@ -101,14 +101,14 @@ export default {
 }
 </script>
 
-<style lang="sass">
+<style lang="less">
 
-.container {
+.container{
   width: 100%;
   height: 100%;
   position: relative;
 
-  .canvas_content {
+  .canvas_content{
     position: absolute;
   }
 }

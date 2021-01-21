@@ -90,13 +90,21 @@ export default {
       THREE.ClampToEdgeWrapping
       THREE.MirroredRepeatWrapping
     */
-      this.texture.repeat.set(3, 1)
+      this.texture.repeat.set(10, 1)
+      this.texture.repeat = new THREE.Vector2(2, 1)
       this.texture.needsUpdate = true
-
+      // this.texture.flipY = false
+      // this.texture.rotation = 180
+      // this.texture.rotation = (0.5, 0.5)
       const material = new THREE.MeshBasicMaterial({
         map: this.texture,
-        side: THREE.BackSide,
-        transparent: true
+        // side: THREE.FrontSide,
+        shadowSide: THREE.BackSide,
+        transparent: true,
+        // skinning: true,
+        // colorWrite: false
+        polygonOffset: true,
+        // polygonOffsetFactor: 1
       })
 
       // 创建顶点数组
@@ -110,10 +118,13 @@ export default {
       const curve = new THREE.CatmullRomCurve3(points) // 曲线路径
 
       // 创建管道
-      const tubeGeometry = new THREE.TubeGeometry(curve, 80, 0.1) // p1：路径；p2:组成管道的分段数64；p3:管道半径1；p4:管道横截面的分段数8；
+      const tubeGeometry = new THREE.TubeGeometry(curve, 80, 0.6, 50, false) // p1：路径；p2:组成管道的分段数64；p3:管道半径1；p4:管道横截面的分段数8；
 
       const mesh = new THREE.Mesh(tubeGeometry, material)
-
+      // mesh.castShadow = true
+      // mesh.up = (0, 0, -1)
+      // mesh.position.set(0, 0, -1)
+      // mesh.rotation.z = 180
       this.scene.add(mesh)
     }
   }
