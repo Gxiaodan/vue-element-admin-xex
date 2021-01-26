@@ -6,6 +6,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Line2 } from 'three/examples/jsm/lines/Line2'
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial'
+import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js'
 import {
   CSS2DRenderer,
   CSS2DObject
@@ -259,11 +260,21 @@ export default class ThreeMap {
       clipBias: 0.003,
       textureWidth: WIDTH * window.devicePixelRatio,
       textureHeight: HEIGHT * window.devicePixelRatio,
-      color: 0x777777
+      color: '#33338b'
     })
-    groundMirror.position.z = -2
+    // groundMirror.position.z = -2;
     // groundMirror.rotateX( - Math.PI / 2 );
     // 加入场景
+    const material = new THREE.MeshBasicMaterial({
+      map: new THREE.TextureLoader().load('./waterdudv.jpg'),
+      transparent: true,
+      opacity: 0.7,
+      lights: false,
+      side: THREE.DoubleSide
+    })
+    const mesh = new THREE.Mesh(mirGeometry, material)
+    mesh.position.z = 0
+    // this.scene.add(mesh);
     this.scene.add(groundMirror)
 
     // 把经纬度转换成x,y,z 坐标
@@ -321,11 +332,12 @@ export default class ThreeMap {
       'rgb(234,128,58)',
       2
     ) // 'rgba(234,128,58,0.3)'
+    lineGroup.position.z = 1
     this.scene.add(lineGroup)
     // const lineGroupBottom = this.drawLineGroup(this.mapData.features, 'rgba(0,255,255,0.2)', 1);
     const lineGroupBottom = lineGroup.clone()
-    lineGroupBottom.position.z = -2
-    // this.scene.add(lineGroupBottom);
+    lineGroupBottom.position.z = 0
+    this.scene.add(lineGroupBottom)
     this.scene.add(this.group)
   }
 
@@ -348,7 +360,7 @@ export default class ThreeMap {
             const lineMesh = this.drawLine(p, color, width)
             lineGroup.add(lineMesh)
             const lineAniMesh = this.drawLineAnimate(p, width)
-            lineGroup.add(lineAniMesh)
+            // lineGroup.add(lineAniMesh);
           }
           // });
         } else {
@@ -356,7 +368,7 @@ export default class ThreeMap {
           const lineMesh = this.drawLine(points, color, width)
           lineGroup.add(lineMesh)
           const lineAniMesh = this.drawLineAnimate(points, width)
-          lineGroup.add(lineAniMesh)
+          // lineGroup.add(lineAniMesh);
         }
       })
     })
@@ -442,49 +454,22 @@ export default class ThreeMap {
     })
 
     const geometry = new THREE.ExtrudeGeometry(shape, {
-      amount: -2, // 拉伸长度，默认100
+      amount: 1, // 拉伸长度，默认100
       bevelEnabled: false, // 对挤出的形状应用是否斜角
-      bevelSegments: 3
+      depth: 2
     })
-    var img2 = './11.jpg'
-    // const material = new THREE.MeshBasicMaterial({
-    //   color: colors[0],
-    //   // map: new THREE.TextureLoader().load(img2),
-    //   transparent: true,
-    //   opacity: 0.5,
-    //   lights: true,
-    //   side: THREE.DoubleSide // 定义将要渲染哪一面 - 正面FrontSide，背面BackSide或两者DoubleSide
-    // });
+    var img2 = './mapLine.png'
     const material = new THREE.MeshPhongMaterial({
-      color: '#02A1E2',
-      specular: 0x444444,
-      emissiveIntensity: 10,
-      lightMapIntensity: 10,
+      color: colors[0],
       transparent: true,
-      opacity: 1,
-      skinning: true,
-      flatShading: true
+      opacity: 0.7
     })
-    // var material = new THREE.MeshLambertMaterial({
-    //   color: "#ff0",
-    //   opacity: 1
-    // });
-    // const material1 = new THREE.MeshBasicMaterial({
-    //   map: new THREE.TextureLoader().load(img2),
-    //   transparent: true,
-    //   opacity: 1,
-    //   // lights: true,
-    //   side: THREE.DoubleSide // 定义将要渲染哪一面 - 正面FrontSide，背面BackSide或两者DoubleSide
-    // });
-    const material1 = new THREE.MeshPhongMaterial({
-      color: colors[1],
-      emissive: colors[1],
-      emissiveIntensity: 1,
+    const material1 = new THREE.MeshBasicMaterial({
+      map: new THREE.TextureLoader().load(img2),
       transparent: true,
-      lights: true,
-      side: THREE.DoubleSide // 定义将要渲染哪一面 - 正面FrontSide，背面BackSide或两者DoubleSide
+      opacity: 0.6
+      // side: THREE.DoubleSide
     })
-    // const mesh = new THREE.Mesh(geometry, material1);
     const mesh = new THREE.Mesh(geometry, [material, material1])
     return mesh
   }
@@ -556,30 +541,25 @@ export default class ThreeMap {
    * @desc 设置光线
    */
   setLight() {
-    // const directionalLight = new THREE.DirectionalLight(0xff0000, 1); // 平行光
-    const directionalLight = new THREE.PointLight(0xffffff, 1, 0) // 点光源
+    const directionalLight = new THREE.DirectionalLight(0xff0000, 1) // 平行光
+    const pointLight = new THREE.PointLight(0xff0000) // 点光源
+    pointLight.castShadow = true
     directionalLight.castShadow = true
-    directionalLight.position.set(0, 0, 10)
-    this.scene.add(directionalLight)
+    pointLight.position.set(-50, -15, 50)
+    directionalLight.position.set(-80, -15, 20)
+    this.scene.add(pointLight)
+    // this.scene.add(directionalLight);
     var point2 = new THREE.PointLight(0xffffff)
-    point2.position.set(0, 0, -10) // 点光源位置
+    point2.position.set(50, 0, 50) // 点光源位置
     this.scene.add(point2) // 点光源添加到场景中
 
-    // this.scene.add(new THREE.HemisphereLight(0x443333, 0x000000)); // 半球光
+    // this.scene.add(new THREE.HemisphereLight(0xff0000, 0x000000)); // 半球光
 
-    // const spotLight = new THREE.SpotLight( 0xff0000 ); // 聚光灯
-    // spotLight.position.set( 0, 10, 1 );
+    // RectAreaLightUniformsLib.init();
 
-    // spotLight.castShadow = true;
-
-    // spotLight.shadow.mapSize.width = 1024;
-    // spotLight.shadow.mapSize.height = 1024;
-
-    // spotLight.shadow.camera.near = 500;
-    // spotLight.shadow.camera.far = 4000;
-    // spotLight.shadow.camera.fov = 30;
-
-    // this.scene.add( spotLight );
+    const rectLight1 = new THREE.RectAreaLight(0xff0000, 5, 40, 1) // 平面光光源
+    rectLight1.position.set(0, -15, 50)
+    // this.scene.add(rectLight1);
   }
 
   /**
