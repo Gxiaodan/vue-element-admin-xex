@@ -37,7 +37,7 @@ export default {
   // },
   methods: {
     animate() {
-    // 一定要在此函数中调用
+      // 一定要在此函数中调用
       if (this.texture) this.texture.offset.x -= 0.01
       requestAnimationFrame(this.animate)
     },
@@ -103,12 +103,13 @@ export default {
         transparent: true,
         // skinning: true,
         // colorWrite: false
-        polygonOffset: true,
+        polygonOffset: true
         // polygonOffsetFactor: 1
       })
 
       // 创建顶点数组
-      const points = [new THREE.Vector3(0, 0, 0),
+      const points = [
+        new THREE.Vector3(0, 0, 0),
         new THREE.Vector3(10, 0, 0),
         new THREE.Vector3(10, 0, 10),
         new THREE.Vector3(0, 0, 10)

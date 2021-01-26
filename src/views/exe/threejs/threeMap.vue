@@ -48,10 +48,10 @@ export default {
       this.scene.add(helper)
 
       // 点光源
-      var pointLight = new THREE.PointLight(0xff7f00, 1, 0)
+      var pointLight = new THREE.PointLight(0xff0000, 1, 0)
       pointLight.position.set(0, 0, 20)
       pointLight.castShadow = true
-      // this.scene.add(pointLight)
+      this.scene.add(pointLight)
       // this.scene.add(new THREE.HemisphereLight(0x443333, 0x000000))
 
       this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
@@ -137,23 +137,25 @@ export default {
 
             const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
             var img1 = './22.jpg'
-            // const material = new THREE.MeshPhongMaterial({
-            //   color: '#02A1E2',
-            //   emissiveIntensity: 10,
-            //   lightMapIntensity: 10,
-            //   transparent: true,
-            //   opacity: 1,
-            //   flatShading: true
-            // })
-            const material = new THREE.MeshBasicMaterial({
-              map: new THREE.TextureLoader().load(img1),
+            const material = new THREE.MeshPhongMaterial({
+              color: '#02A1E2',
+              emissiveIntensity: 10,
+              lightMapIntensity: 10,
               transparent: true,
-              opacity: 1
+              opacity: 1,
+              flatShading: true
             })
+            // const material = new THREE.MeshBasicMaterial({
+            //   map: new THREE.TextureLoader().load(img1),
+            //   transparent: true,
+            //   lights: true,
+            //   opacity: 1
+            // });
             var img2 = './waterdudv.jpg'
             const material1 = new THREE.MeshBasicMaterial({
               map: new THREE.TextureLoader().load(img2),
               // color: "#ffffff",
+              lights: true,
               transparent: true,
               opacity: 0.8
             })
@@ -238,7 +240,10 @@ export default {
             bevelEnabled: false
           }
 
-          const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings)
+          const geometry = new THREE.ExtrudeGeometry(
+            heartShape,
+            extrudeSettings
+          )
           const material = new THREE.MeshBasicMaterial({
             color: '#02A1E2',
             transparent: true,

@@ -91,6 +91,28 @@ export default class ThreeMap {
       this.mousewheel.bind(this),
       false
     )
+
+    this.cubeCamera1 = new THREE.CubeCamera(0.1, 1000, 2048)
+    // this.cubeCamera2 = new THREE.CubeCamera(0.1, 1000, 2048);
+    // this.scene.add(this.cubeCamera1);
+
+    // let sphereGeometry = new THREE.SphereGeometry(15, 100, 100);
+    const boxGeometry = new THREE.BoxGeometry(300, 200, 1)
+    const material = new THREE.MeshPhongMaterial({
+      envMap: this.cubeCamera1.renderTarget.texture
+    })
+    // let sphere = new THREE.Mesh(sphereGeometry, material);
+    // sphere.position.z = -10;
+    // sphere.position.x = 0;
+    // this.cubeCamera1.position.copy(sphere.position);
+    var img2 = './11.jpg'
+    const map = new THREE.TextureLoader().load(img2)
+    // let material2 = new THREE.MeshPhongMaterial({envMap: cubeRenderTarget.texture});
+    const material2 = new THREE.MeshPhongMaterial({ envMap: map })
+    const box = new THREE.Mesh(boxGeometry, material2)
+    box.translateZ(-2)
+    // this.scene.add(box);
+    // this.scene.add(this.cubeCamera1);
   }
 
   // 滚轮事件
@@ -424,13 +446,36 @@ export default class ThreeMap {
       bevelEnabled: false, // 对挤出的形状应用是否斜角
       bevelSegments: 3
     })
-    const material = new THREE.MeshBasicMaterial({
-      color: colors[0],
+    var img2 = './11.jpg'
+    // const material = new THREE.MeshBasicMaterial({
+    //   color: colors[0],
+    //   // map: new THREE.TextureLoader().load(img2),
+    //   transparent: true,
+    //   opacity: 0.5,
+    //   lights: true,
+    //   side: THREE.DoubleSide // 定义将要渲染哪一面 - 正面FrontSide，背面BackSide或两者DoubleSide
+    // });
+    const material = new THREE.MeshPhongMaterial({
+      color: '#02A1E2',
+      specular: 0x444444,
+      emissiveIntensity: 10,
+      lightMapIntensity: 10,
       transparent: true,
       opacity: 1,
-      lights: true,
-      side: THREE.DoubleSide // 定义将要渲染哪一面 - 正面FrontSide，背面BackSide或两者DoubleSide
+      skinning: true,
+      flatShading: true
     })
+    // var material = new THREE.MeshLambertMaterial({
+    //   color: "#ff0",
+    //   opacity: 1
+    // });
+    // const material1 = new THREE.MeshBasicMaterial({
+    //   map: new THREE.TextureLoader().load(img2),
+    //   transparent: true,
+    //   opacity: 1,
+    //   // lights: true,
+    //   side: THREE.DoubleSide // 定义将要渲染哪一面 - 正面FrontSide，背面BackSide或两者DoubleSide
+    // });
     const material1 = new THREE.MeshPhongMaterial({
       color: colors[1],
       emissive: colors[1],
@@ -511,11 +556,15 @@ export default class ThreeMap {
    * @desc 设置光线
    */
   setLight() {
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1) // 平行光
-    // const directionalLight = new THREE.PointLight( 0xffffff, 1, 0 ); // 点光源
+    // const directionalLight = new THREE.DirectionalLight(0xff0000, 1); // 平行光
+    const directionalLight = new THREE.PointLight(0xffffff, 1, 0) // 点光源
     directionalLight.castShadow = true
-    directionalLight.position.set(0, 10, 0)
+    directionalLight.position.set(0, 0, 10)
     this.scene.add(directionalLight)
+    var point2 = new THREE.PointLight(0xffffff)
+    point2.position.set(0, 0, -10) // 点光源位置
+    this.scene.add(point2) // 点光源添加到场景中
+
     // this.scene.add(new THREE.HemisphereLight(0x443333, 0x000000)); // 半球光
 
     // const spotLight = new THREE.SpotLight( 0xff0000 ); // 聚光灯
