@@ -33,8 +33,8 @@ const exeRouter = {
     {
       path: 'vModel',
       component: () => import('@/views/exe/vModel/index'),
-      name: 'v-model',
-      meta: { title: 'v-model', noCache: true }
+      name: 'v-model和插槽',
+      meta: { title: 'v-model和插槽', noCache: true }
     },
     {
       path: 'svg',

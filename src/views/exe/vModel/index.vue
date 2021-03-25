@@ -11,7 +11,17 @@
     v-model
     <p>parentsVal</p><el-button @click="addVal">parentsVal</el-button>
     <p>{{ parentsVal }}</p>
-    <child-comp v-model="parentsVal" :data="parentsData" />
+    <child-comp v-model="parentsVal" :data="parentsData">
+      <template v-slot="{slotObj, aaa}">
+        {{ slotObj }} <hr> {{ aaa }}
+      </template>
+      <template #foot>
+        <el-button>foot匿名插槽</el-button>
+      </template>
+      <template #def>
+        <el-button>def匿名插槽</el-button>
+      </template>
+    </child-comp>
   </div>
 </template>
 

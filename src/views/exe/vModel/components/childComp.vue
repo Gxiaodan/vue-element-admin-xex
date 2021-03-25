@@ -4,6 +4,9 @@
     <p>{{ data }}</p>
     modelVal <el-button @click="add">modelVal</el-button>
     <p>{{ modelVal }}</p>
+    <slot name="def" />
+    <slot name="foot" />
+    <slot :slotObj="data" :aaa="data" />
   </div>
 </template>
 
