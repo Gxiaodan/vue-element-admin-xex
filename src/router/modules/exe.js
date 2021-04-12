@@ -13,6 +13,12 @@ const exeRouter = {
   },
   children: [
     {
+      path: 'new-css',
+      component: () => import('@/views/exe/newCss'),
+      name: 'new-css',
+      meta: { title: 'new-css', noCache: true }
+    },
+    {
       path: 'html2canvas',
       component: () => import('@/views/exe/html2canvas'),
       name: 'html2canvas',
