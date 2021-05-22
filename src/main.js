@@ -46,14 +46,17 @@ Vue.use(VueCompositionApi)
 Vue.use(VueClipboard)
 Vue.component(VTable.name, VTable)
 Vue.component(VPagination.name, VPagination)
+import * as Echarts from 'echarts'
+Vue.prototype.$echarts = Echarts
+
 /**
-     * If you don't want to use mock-server
-     * you want to use MockJs for mock api
-     * you can execute: mockXHR()
-     *
-     * Currently MockJs will be used in the production environment,
-     * please remove it before going online ! ! !
-     */
+ * If you don't want to use mock-server
+ * you want to use MockJs for mock api
+ * you can execute: mockXHR()
+ *
+ * Currently MockJs will be used in the production environment,
+ * please remove it before going online ! ! !
+ */
 if (process.env.NODE_ENV === 'production') {
   const { mockXHR } = require('../mock')
   mockXHR()

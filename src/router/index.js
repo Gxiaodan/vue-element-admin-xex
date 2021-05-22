@@ -8,6 +8,7 @@ import Layout from '@/layout'
 
 /* Router Modules */
 import chartsRouter from './modules/charts'
+import ECharts5Router from './modules/ECharts5'
 import exeRouter from './modules/exe'
 import threeRouter from './modules/threeJs'
 
@@ -94,6 +95,7 @@ export const asyncRoutes = [
   chartsRouter,
   exeRouter,
   threeRouter,
+  ECharts5Router,
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
